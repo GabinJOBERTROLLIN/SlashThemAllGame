@@ -1,0 +1,15 @@
+<div class="content">
+    <div>
+      <p>This a game  ! Please survive !</p>
+    </div>
+    <div class="divider" role="separator" aria-label="Divider"></div>
+    
+    <button (click)="toggleGame()">
+  {{ showGame ? 'Stop game' : 'New Game' }}
+</button>
+
+<app-game *ngIf="gameStarted"></app-game>
+
+
+
+  </div>

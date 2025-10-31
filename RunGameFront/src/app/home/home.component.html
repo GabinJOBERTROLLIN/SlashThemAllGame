@@ -1,0 +1,6 @@
+<button (click)="createRoom()">Create Room</button>
+
+  <form (ngSubmit)="handleSubmit($event)">
+    <input type="text" name="roomId" [(ngModel)]="inputId" placeholder="Enter Room ID" />
+    <button type="submit">Join Room</button>
+  </form>
