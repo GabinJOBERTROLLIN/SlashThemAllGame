@@ -71,7 +71,8 @@ public class TileFinder {
     	        } 
     	        
     	}
-    	tile = this.tiles.get(1);
+    	System.out.println("no tile found "+edgesNeighbour);
+    	tile = this.tiles.get(0);
     	return tile;
     }
     
@@ -100,6 +101,7 @@ public class TileFinder {
     }
     private  ArrayList<Tile> findSuitableTiles(Map<DirectionEnum,Edge> edgesNeighbour) {
     	ArrayList<Tile> suitableTiles = new ArrayList<Tile>(); 
+    	if (edgesNeighbour.size() ==0) { return this.tiles;}
     	for (int tileNumber=0;tileNumber<tiles.size();tileNumber++) {
     		int numberOfCorrectEdges = 0;
     		

@@ -89,13 +89,11 @@ public class UserSessionHeroes {
 	}
 	
 	public void move(String userId, Coordinates coord) {
-		System.out.println("userSessionHeroes userId"+ userId);
 		HeroInMap heroInMap = userHeroes.get(userId);
 		heroInMap.setCoordinates(coord);
 	}
 
 	public void moveInput(String userId, Coordinates coord, DirectionEnum skillDIrection) {
-		System.out.println("this is the userId in usersession stuff" + userId);
 		this.move(userId,coord);
 		
 	}

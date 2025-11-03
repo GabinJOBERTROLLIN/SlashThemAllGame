@@ -1,0 +1,16 @@
+services:
+  main-backend:
+    build:
+      context: ./backend
+      dockerfile: dockerfile
+    ports:
+      - "8081:8081"
+  
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: dockerfile
+    ports:
+      - "4200:4200"
+    depends_on:
+      - main-backend
