@@ -11,7 +11,8 @@ public class GameTasks {
 
 	public void generateMonsters(String roomId) {
 		RestTemplate restTemplate = new RestTemplate();
-		String url = "http://localhost:8081/monsters/generate?roomId={roomId}";
+		String backendUrl = System.getenv("BACKEND_URL");
+		String url = backendUrl + "/monsters/generate?roomId={roomId}";
 
 		Map<String, String> params = new HashMap<>();
 		params.put("roomId", roomId);
@@ -20,7 +21,8 @@ public class GameTasks {
 
 	public void moveMonsters(String roomId) {
 		RestTemplate restTemplate = new RestTemplate();
-		String url = "http://localhost:8081/monsters/move?roomId={roomId}";
+		String backendUrl = System.getenv("BACKEND_URL");
+		String url = backendUrl + "/monsters/move?roomId={roomId}";
 		Map<String, String> params = new HashMap<>();
 		params.put("roomId", roomId);
 		restTemplate.postForLocation(url, null,params);	
@@ -28,7 +30,8 @@ public class GameTasks {
 	
 	public void broadcastHeroesCoordinates(String roomId) {
 		RestTemplate restTemplate = new RestTemplate();
-		String url = "http://localhost:8081/hero/send?roomId={roomId}";
+		String backendUrl = System.getenv("BACKEND_URL");
+		String url = backendUrl + "/hero/send?roomId={roomId}";
 		Map<String, String> params = new HashMap<>();
 		params.put("roomId", roomId);
 		restTemplate.postForLocation(url, null,params);	

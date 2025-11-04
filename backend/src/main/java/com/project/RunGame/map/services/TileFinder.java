@@ -3,6 +3,7 @@ package com.project.RunGame.map.services;
 
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -126,46 +127,56 @@ public class TileFinder {
     	return suitableTiles;
     }
     
-    
-    private void loadTiles() {
-    	  
-    	try {
-    		  ObjectMapper mapper = new ObjectMapper();
-        	  JsonNode root = mapper.readTree(new File("src/main/resources/Tiles.json"));
-        	  JsonNode tilesNode = root.get("tiles");
-        	  ArrayList<Tile> tiles = new ArrayList<Tile>();
-        	  Iterator<Map.Entry<String, JsonNode>> fields = tilesNode.fields();
-        	  while (fields.hasNext()) {
-                  Map.Entry<String, JsonNode> entry = fields.next();
-                  
-                  JsonNode tileData = entry.getValue().get("coord");
-                  int size = tileData.size();
-                  int[] upEdgeTable = new int[size];
-                  int[] downEdgeTable = new int[size];
-                  int[] leftEdgeTable = new int[size];
-                  int[] rightEdgeTable = new int[size];
-                  for (int col = 0; col < size; col++) {
-                	    upEdgeTable[col] = tileData.get(0).get(col).asInt();
-                	    downEdgeTable[col] = tileData.get(size-1).get(col).asInt();
-                	    leftEdgeTable[col] = tileData.get(col).get(0).asInt();
-                	    rightEdgeTable[col] = tileData.get(col).get(size-1).asInt();
-                	}
-                  Map<DirectionEnum,Edge> edges = new HashMap<DirectionEnum,Edge>();
-                  edges.put(DirectionEnum.Up, new Edge(upEdgeTable));
-                  edges.put(DirectionEnum.Down, new Edge(downEdgeTable));
-                  edges.put(DirectionEnum.Left, new Edge(leftEdgeTable));
-                  edges.put(DirectionEnum.Right, new Edge(rightEdgeTable));
+	private void loadTiles() {
+		try {
+			ObjectMapper mapper = new ObjectMapper();
 
-                  Tile tile = new Tile(edges,entry.getValue().get("id").asInt(),entry.getValue().get("probabilityIndex").asInt());
-                  tiles.add(tile);
-                  this.tiles = tiles;
+			try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream("Tiles.json")) {
+				if (inputStream == null) {
+					throw new RuntimeException("Fichier Tiles.json non trouvé dans le classpath !");
+				}
 
-              }
-        	  
-    	} catch (Exception e) {
-    		e.printStackTrace();
-    	}
-    	
-    }
+				JsonNode root = mapper.readTree(inputStream);
+				JsonNode tilesNode = root.get("tiles");
+				ArrayList<Tile> tiles = new ArrayList<>();
+
+				Iterator<Map.Entry<String, JsonNode>> fields = tilesNode.fields();
+				while (fields.hasNext()) {
+					Map.Entry<String, JsonNode> entry = fields.next();
+
+					JsonNode tileData = entry.getValue().get("coord");
+					int size = tileData.size();
+					int[] upEdgeTable = new int[size];
+					int[] downEdgeTable = new int[size];
+					int[] leftEdgeTable = new int[size];
+					int[] rightEdgeTable = new int[size];
+
+					for (int col = 0; col < size; col++) {
+						upEdgeTable[col] = tileData.get(0).get(col).asInt();
+						downEdgeTable[col] = tileData.get(size - 1).get(col).asInt();
+						leftEdgeTable[col] = tileData.get(col).get(0).asInt();
+						rightEdgeTable[col] = tileData.get(col).get(size - 1).asInt();
+					}
+
+					Map<DirectionEnum, Edge> edges = new HashMap<>();
+					edges.put(DirectionEnum.Up, new Edge(upEdgeTable));
+					edges.put(DirectionEnum.Down, new Edge(downEdgeTable));
+					edges.put(DirectionEnum.Left, new Edge(leftEdgeTable));
+					edges.put(DirectionEnum.Right, new Edge(rightEdgeTable));
+
+					Tile tile = new Tile(edges,
+							entry.getValue().get("id").asInt(),
+							entry.getValue().get("probabilityIndex").asInt());
+					tiles.add(tile);
+				}
+
+				this.tiles = tiles;
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
     
 }

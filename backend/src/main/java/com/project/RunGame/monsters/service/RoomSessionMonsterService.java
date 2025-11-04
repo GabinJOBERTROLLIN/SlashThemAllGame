@@ -114,7 +114,8 @@ public class RoomSessionMonsterService {
 	
 	private Map<String,Coordinates> getHeroCoordinates(String roomId){
 		RestTemplate restTemplate = new RestTemplate();
-		 String url = "http://localhost:8081/hero/coordinates?roomId={roomId}";
+		 String backendUrl = System.getenv("BACKEND_URL");
+		 String url = backendUrl + "/hero/coordinates?roomId={roomId}";
 
 		 Map<String, String> params = new HashMap<>();
 		 params.put("roomId", roomId);
