@@ -1,10 +1,9 @@
 package com.project.RunGame.map.controller;
 
-import org.springframework.context.ApplicationListener;
-import org.springframework.stereotype.Component;
-
 import com.project.RunGame.dto.eventsDto.MapEvent;
 import com.project.RunGame.map.UserSessionMap.RoomSessionMapService;
+import org.springframework.context.ApplicationListener;
+import org.springframework.stereotype.Component;
 
 @Component
 public class MapEventListener implements ApplicationListener<MapEvent> {
@@ -17,6 +16,6 @@ public class MapEventListener implements ApplicationListener<MapEvent> {
     @Override
     public void onApplicationEvent(MapEvent event) {
         userSessionMapService.updateUserMap(event.getRoomId(), event.getCoordinates());
-        
+
     }
 }

@@ -1,22 +1,22 @@
 package com.project.RunGame.dto;
 
 public class GameStartRequest {
-	private String userId;
-	private String hero;
-	
-	public String getUserId() {
-		return userId;
-	}
+    private String userId;
+    private String hero;
 
-	public void setUserId(String userId) {
-		this.userId = userId;
-	}
+    public String getUserId() {
+        return userId;
+    }
 
-	public String getHero() {
-		return hero;
-	}
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
 
-	public void setHero(String hero) {
-		this.hero = hero;
-	}
+    public String getHero() {
+        return hero;
+    }
+
+    public void setHero(String hero) {
+        this.hero = hero;
+    }
 }

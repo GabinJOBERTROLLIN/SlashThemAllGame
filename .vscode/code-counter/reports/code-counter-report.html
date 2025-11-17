@@ -1,0 +1,816 @@
+<!-- 
+VS Code Code Counter Extension
+
+Copyright (c) 2025 DelightfulGames
+Licensed under the MIT License
+
+Repository: https://github.com/DelightfulGames/vscode-code-counter
+Marketplace: https://marketplace.visualstudio.com/items?itemName=DelightfulGames.vscode-code-counter
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Counter Report</title>
+    <style>
+        :root {
+            /* Light theme variables (default) */
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-tertiary: #f5f5f5;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --text-muted: #999999;
+            --border-color: #e1e4e8;
+            --shadow: 0 2px 10px rgba(0,0,0,0.1);
+            --accent-color: #007acc;
+            --accent-gradient: linear-gradient(135deg, #007acc, #005a9e);
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --hover-bg: rgba(0,122,204,0.05);
+        }
+
+        /* Dark theme variables */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-primary: #1e1e1e;
+                --bg-secondary: #2d2d30;
+                --bg-tertiary: #252526;
+                --text-primary: #cccccc;
+                --text-secondary: #9d9d9d;
+                --text-muted: #6d6d6d;
+                --border-color: #3c3c3c;
+                --shadow: 0 2px 10px rgba(0,0,0,0.3);
+                --accent-color: #0078d4;
+                --accent-gradient: linear-gradient(135deg, #0078d4, #106ebe);
+                --success-color: #4ec9b0;
+                --warning-color: #ffcc02;
+                --danger-color: #f85149;
+                --hover-bg: rgba(0,120,212,0.1);
+            }
+        }
+
+        /* Manual dark theme override for exports */
+        [data-theme="dark"] {
+            --bg-primary: #1e1e1e;
+            --bg-secondary: #2d2d30;
+            --bg-tertiary: #252526;
+            --text-primary: #cccccc;
+            --text-secondary: #9d9d9d;
+            --text-muted: #6d6d6d;
+            --border-color: #3c3c3c;
+            --shadow: 0 2px 10px rgba(0,0,0,0.3);
+            --accent-color: #0078d4;
+            --accent-gradient: linear-gradient(135deg, #0078d4, #106ebe);
+            --success-color: #4ec9b0;
+            --warning-color: #ffcc02;
+            --danger-color: #f85149;
+            --hover-bg: rgba(0,120,212,0.1);
+        }
+
+        /* Manual light theme override - forces light theme even on dark systems */
+        [data-theme="light"] {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-tertiary: #f5f5f5;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --text-muted: #999999;
+            --border-color: #e1e4e8;
+            --shadow: 0 2px 10px rgba(0,0,0,0.1);
+            --accent-color: #007acc;
+            --accent-gradient: linear-gradient(135deg, #007acc, #005a9e);
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --hover-bg: rgba(0,122,204,0.05);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--bg-tertiary);
+            color: var(--text-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+        .header {
+            background: var(--accent-gradient);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        .header p {
+            margin: 10px 0 0;
+            opacity: 0.9;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 30px;
+        }
+        .stat-card {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border-left: 4px solid var(--accent-color);
+            border: 1px solid var(--border-color);
+        }
+        .stat-card h3 {
+            margin: 0 0 10px;
+            color: var(--accent-color);
+            font-size: 1.2em;
+        }
+        .stat-card .value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: var(--text-primary);
+            margin: 0;
+        }
+        .section {
+            padding: 20px 30px;
+            border-top: 1px solid var(--border-color);
+            background: var(--bg-primary);
+        }
+        .section h2 {
+            color: var(--accent-color);
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+        .language-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .language-item {
+            background: var(--bg-secondary);
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 3px solid var(--success-color);
+            border: 1px solid var(--border-color);
+        }
+        .language-name {
+            font-weight: bold;
+            color: var(--text-primary);
+            margin-bottom: 5px;
+        }
+        .language-details {
+            font-size: 0.9em;
+            color: var(--text-secondary);
+        }
+        .files-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .files-table th,
+        .files-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .files-table th {
+            background: var(--bg-secondary);
+            color: var(--accent-color);
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+        .files-table tr:hover {
+            background: var(--hover-bg);
+        }
+        .files-table tbody tr:nth-child(even) {
+            background: rgba(0, 0, 0, 0.02);
+        }
+        [data-theme="dark"] .files-table tbody tr:nth-child(even) {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .file-path {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: var(--text-secondary);
+        }
+        .file-name-cell {
+            position: relative;
+            max-width: 300px;
+        }
+        .file-name-display {
+            display: flex;
+            flex-direction: column;
+        }
+        .file-name {
+            font-weight: 500;
+            color: var(--accent-color);
+            display: block;
+        }
+        .file-path-toggle {
+            font-size: 0.85em;
+            color: var(--text-secondary);
+            margin-top: 2px;
+            font-family: 'Courier New', monospace;
+            display: none; /* Hidden by default */
+        }
+        .file-path-toggle:empty {
+            display: none; /* Hide when empty */
+        }
+        .file-name-text {
+            font-weight: 500;
+            color: var(--accent-color);
+            display: block;
+        }
+        .file-path-text {
+            font-size: 0.85em;
+            color: var(--text-secondary);
+            margin-top: 2px;
+            font-family: 'Courier New', monospace;
+        }
+        .file-full-path {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: var(--text-secondary);
+            word-break: break-all;
+            max-width: 400px;
+        }
+        .path-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 2px 4px;
+            margin-left: 8px;
+            border-radius: 3px;
+            font-size: 0.9em;
+            color: var(--text-primary);
+        }
+        .path-toggle:hover {
+            background-color: var(--hover-bg);
+        }
+        .path-column {
+            min-width: 200px;
+            max-width: 400px;
+        }
+        @media (max-width: 768px) {
+            .path-column {
+                display: none !important;
+            }
+        }
+        .language-badge {
+            background: var(--accent-color);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+        .footer {
+            padding: 20px 30px;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            border-top: 1px solid var(--border-color);
+            background: var(--bg-primary);
+        }
+        .footer a,
+        .generator-info a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+        .footer a:hover,
+        .generator-info a:hover {
+            text-decoration: underline;
+        }
+        .generator-info {
+            font-size: 0.9em;
+            color: var(--text-muted);
+            margin-top: 5px;
+        }
+        .search-box {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            margin-bottom: 20px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 16px;
+            transition: border-color 0.2s ease;
+        }
+        .search-box:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(0, 122, 204, 0.2);
+        }
+        .search-box::placeholder {
+            color: var(--text-muted);
+        }
+        .loading-indicator {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-secondary);
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--border-color);
+            border-top: 3px solid var(--accent-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+        .error-message {
+            text-align: center;
+            padding: 20px;
+            color: var(--danger-color);
+            background: var(--bg-primary);
+            border: 1px solid var(--danger-color);
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+            z-index: 1000;
+        }
+        .theme-toggle:hover {
+            background: var(--hover-bg);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .theme-toggle:active {
+            transform: translateY(0);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .theme-toggle {
+                top: 10px;
+                right: 10px;
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+            .container {
+                margin-top: 60px;
+            }
+        }
+        
+        .hidden {
+            display: none;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" id="theme-toggle" title="Toggle dark/light theme">
+        <span id="theme-icon">�</span> <span id="theme-text">Auto</span>
+    </button>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Code Counter Report</h1>
+            <p>Generated on 11/10/2025, 9:53:44 AM</p>
+            <p>Workspace: c:/Users/gjobert--rollin/Documents/RunGame</p>
+            <p class="generator-info">Generated by <a href="https://marketplace.visualstudio.com/items?itemName=DelightfulGames.vscode-code-counter" target="_blank">VS Code Code Counter v1.0.2</a> by DelightfulGames</p>
+        </div>
+
+        <div id="loading-indicator" class="loading-indicator">
+            <div class="loading-spinner"></div>
+            Loading report data...
+        </div>
+
+        <div id="error-message" class="error-message hidden">
+            <strong>Error:</strong> <span id="error-text"></span>
+        </div>
+
+        <div id="report-content" class="hidden">
+            <div class="stats-grid" id="summary-stats">
+                <!-- Will be populated by JavaScript -->
+            </div>
+
+            <div class="section">
+                <h2>📈 Language Statistics</h2>
+                <div class="language-stats" id="language-stats">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>📁 File Details</h2>
+                <input type="text" class="search-box" id="file-search" placeholder="Search files..." />
+                <div style="overflow-x: auto;">
+                    <table class="files-table">
+                        <thead>
+                            <tr>
+                                <th>
+                                    File Name
+                                    <button class="path-toggle" id="path-toggle" onclick="togglePathDisplay()" title="Toggle full path display">Toggle Paths</button>
+                                </th>
+                                <th>Language</th>
+                                <th>Total Lines</th>
+                                <th>Code Lines</th>
+                                <th>Comment Lines</th>
+                                <th>Blank Lines</th>
+                                <th>File Size (bytes)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="files-tbody">
+                            <!-- Will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="footer">
+                <p>Generated by <a href="https://marketplace.visualstudio.com/items?itemName=DelightfulGames.vscode-code-counter" target="_blank">VS Code Code Counter Extension v1.0.2</a> by DelightfulGames</p>
+                <p><small>Visit our <a href="https://github.com/DelightfulGames/vscode-code-counter" target="_blank">GitHub Repository</a> for support and updates</small></p>
+            </div>
+        </div>
+    </div>
+
+    <script>       
+        // Debug wrapper that sends messages to VS Code extension debugService
+        const debug = {
+            verbose: (...args) => {
+                console.debug("[HTML REPORT VIEW] - "
+                     + args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(' ')
+                );
+            },
+            info: (...args) => {
+                console.info("[HTML REPORT VIEW] - "
+                     + args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(' ')
+                );
+            },
+            warning: (...args) => {
+                console.warn("[HTML REPORT VIEW] - "
+                     + args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(' ')
+                );
+            },
+            error: (...args) => {
+                console.error("[HTML REPORT VIEW] - "
+                     + args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(' ')
+                );
+            }
+        };
+
+        // Theme detection and application
+        let currentTheme = localStorage.getItem('theme') || 'auto';
+        
+        // Debug: Log initial state
+        debug.verbose('Initial theme state:', {
+            storedTheme: localStorage.getItem('theme'),
+            currentTheme: currentTheme,
+            systemPrefersDark: window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'unknown'
+        });
+        
+        function updateThemeToggle() {
+            const themeIcon = document.getElementById('theme-icon');
+            const themeText = document.getElementById('theme-text');
+            
+            debug.verbose('updateThemeToggle called:', {
+                currentTheme,
+                themeIconExists: !!themeIcon,
+                themeTextExists: !!themeText,
+                domReadyState: document.readyState
+            });
+            
+            // Check if elements exist (might be called before DOM ready)
+            if (!themeIcon || !themeText) {
+                debug.verbose('Theme toggle elements not found, skipping update');
+                return;
+            }
+            
+            const prefersDark = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)').matches : false;
+            const actuallyDark = currentTheme === 'dark' || (currentTheme === 'auto' && prefersDark);
+            
+            debug.verbose('Theme toggle update details:', {
+                prefersDark,
+                actuallyDark,
+                currentTheme
+            });
+            
+            if (currentTheme === 'auto') {
+                themeIcon.textContent = actuallyDark ? '🌙' : '☀️';
+                themeText.textContent = 'Auto';
+            } else if (currentTheme === 'dark') {
+                themeIcon.textContent = '🌙';
+                themeText.textContent = 'Dark';
+            } else {
+                themeIcon.textContent = '☀️';
+                themeText.textContent = 'Light';
+            }
+            
+            debug.verbose('Updated button to:', {
+                icon: themeIcon.textContent,
+                text: themeText.textContent
+            });
+        }
+        
+        // Apply theme styles to document
+        function applyThemeStyles() {
+            const prefersDark = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)').matches : false;
+            
+            if (currentTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else if (currentTheme === 'light') {
+                document.documentElement.setAttribute('data-theme', 'light');
+            } else if (currentTheme === 'auto') {
+                // For auto mode, use system preference
+                if (prefersDark) {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                } else {
+                    document.documentElement.removeAttribute('data-theme'); // Use default light theme
+                }
+            } else {
+                // Fallback: remove attribute to use default light theme
+                document.documentElement.removeAttribute('data-theme');
+            }
+            
+            debug.verbose('Applied theme:', {
+                currentTheme,
+                prefersDark,
+                dataTheme: document.documentElement.getAttribute('data-theme')
+            });
+        }
+
+        // Apply theme and update UI
+        function applyTheme() {
+            applyThemeStyles();
+            updateThemeToggle();
+        }
+        
+        function toggleTheme() {
+            const themes = ['auto', 'light', 'dark'];
+            const currentIndex = themes.indexOf(currentTheme);
+            const newTheme = themes[(currentIndex + 1) % themes.length];
+            
+            debug.verbose('Theme toggle:', {
+                from: currentTheme,
+                to: newTheme,
+                systemPrefersDark: window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'unknown'
+            });
+            
+            currentTheme = newTheme;
+            localStorage.setItem('theme', currentTheme);
+            applyTheme();
+        }
+        
+        // Listen for theme changes
+        if (window.matchMedia) {
+            const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+            if (mediaQuery.addEventListener) {
+                mediaQuery.addEventListener('change', applyTheme);
+            } else if (mediaQuery.addListener) {
+                // Fallback for older browsers
+                mediaQuery.addListener(applyTheme);
+            }
+        }
+        
+        // Apply theme styles immediately (before DOM ready)
+        applyThemeStyles();
+        
+        // Setup theme toggle button and full theme application after DOM ready
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeToggle = document.getElementById('theme-toggle');
+            if (themeToggle) {
+                themeToggle.addEventListener('click', toggleTheme);
+                // Now that DOM is ready, update the toggle UI
+                updateThemeToggle();
+            }
+        });
+
+        // Template-specific functionality for exported HTML files
+        
+        // Path display toggle functionality
+        let showFullPaths = false;
+        
+        function togglePathDisplay() {
+            showFullPaths = !showFullPaths;
+            const pathToggles = document.querySelectorAll('.file-path-toggle');
+            const toggleButton = document.getElementById('path-toggle');
+            
+            pathToggles.forEach(pathElement => {
+                pathElement.style.display = showFullPaths ? 'block' : 'none';
+            });
+            
+            // Update button state
+            if (toggleButton) {
+                toggleButton.textContent = showFullPaths ? '📄' : '📁';
+                toggleButton.title = showFullPaths ? 'Hide full paths' : 'Show full paths';
+            }
+            
+            // Store preference
+            localStorage.setItem('codeCounterShowPaths', showFullPaths.toString());
+        }
+        
+        // Restore user preference on load
+        function restorePathPreference() {
+            const savedPreference = localStorage.getItem('codeCounterShowPaths');
+            if (savedPreference === 'true') {
+                togglePathDisplay();
+            }
+        }
+        
+        // Embedded XML data (populated by HTML generator)
+        const embeddedXmlData = '<codeCounter generatedAt=\"2025-11-10T08:53:44.876Z\" generatedBy=\"VS Code Code Counter v1.0.2 by DelightfulGames\" generatorUrl=\"https://marketplace.visualstudio.com/items?itemName=DelightfulGames.vscode-code-counter\" workspacePath=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\">\n  <summary>\n    <totalFiles>196</totalFiles>\n    <totalLines>9227</totalLines>\n  </summary>\n  <languageStats>\n    <language name=\"YAML\" files=\"1\" lines=\"17\"></language>\n    <language name=\"Unknown\" files=\"79\" lines=\"1959\"></language>\n    <language name=\"JSON\" files=\"10\" lines=\"2844\"></language>\n    <language name=\"CSS\" files=\"6\" lines=\"7\"></language>\n    <language name=\"TypeScript\" files=\"27\" lines=\"1182\"></language>\n    <language name=\"HTML\" files=\"6\" lines=\"46\"></language>\n    <language name=\"Markdown\" files=\"2\" lines=\"45\"></language>\n    <language name=\"XML\" files=\"1\" lines=\"94\"></language>\n    <language name=\"Java\" files=\"64\" lines=\"3033\"></language>\n  </languageStats>\n  <files>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\docker-compose.yml\" relativePath=\"docker-compose.yml\" fullPath=\"docker-compose.yml\" fileName=\"docker-compose.yml\" directory=\"\" language=\"YAML\" lines=\"17\" codeLines=\"15\" commentLines=\"0\" blankLines=\"2\" size=\"287\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\dockerfile\" relativePath=\"backend\\dockerfile\" fullPath=\"backend/dockerfile\" fileName=\"dockerfile\" directory=\"backend\" language=\"Unknown\" lines=\"13\" codeLines=\"9\" commentLines=\"0\" blankLines=\"4\" size=\"281\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\dockerfile\" relativePath=\"frontend\\dockerfile\" fullPath=\"frontend/dockerfile\" fileName=\"dockerfile\" directory=\"frontend\" language=\"Unknown\" lines=\"13\" codeLines=\"7\" commentLines=\"0\" blankLines=\"6\" size=\"197\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\package.json\" relativePath=\"frontend\\package.json\" fullPath=\"frontend/package.json\" fileName=\"package.json\" directory=\"frontend\" language=\"JSON\" lines=\"41\" codeLines=\"40\" commentLines=\"0\" blankLines=\"1\" size=\"1135\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\TilesLowWaterProba.json\" relativePath=\"backend\\target\\classes\\TilesLowWaterProba.json\" fullPath=\"backend/target/classes/TilesLowWaterProba.json\" fileName=\"TilesLowWaterProba.json\" directory=\"backend\\target\\classes\" language=\"JSON\" lines=\"356\" codeLines=\"351\" commentLines=\"0\" blankLines=\"5\" size=\"9207\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\Tiles.json\" relativePath=\"backend\\target\\classes\\Tiles.json\" fullPath=\"backend/target/classes/Tiles.json\" fileName=\"Tiles.json\" directory=\"backend\\target\\classes\" language=\"JSON\" lines=\"686\" codeLines=\"681\" commentLines=\"0\" blankLines=\"5\" size=\"14864\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\user\\controller\\UserController.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\user\\controller\\UserController.class\" fullPath=\"backend/target/classes/com/project/RunGame/user/controller/UserController.class\" fileName=\"UserController.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\user\\controller\" language=\"Unknown\" lines=\"9\" codeLines=\"9\" commentLines=\"0\" blankLines=\"0\" size=\"1449\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\user\\service\\RoomSession.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\user\\service\\RoomSession.class\" fullPath=\"backend/target/classes/com/project/RunGame/user/service/RoomSession.class\" fileName=\"RoomSession.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\user\\service\" language=\"Unknown\" lines=\"20\" codeLines=\"20\" commentLines=\"0\" blankLines=\"0\" size=\"2772\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\RunGameApplication.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\RunGameApplication.class\" fullPath=\"backend/target/classes/com/project/RunGame/RunGameApplication.class\" fileName=\"RunGameApplication.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\" language=\"Unknown\" lines=\"7\" codeLines=\"7\" commentLines=\"0\" blankLines=\"0\" size=\"748\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\map\\UserSessionMap\\RoomSessionMapService.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\map\\UserSessionMap\\RoomSessionMapService.class\" fullPath=\"backend/target/classes/com/project/RunGame/map/UserSessionMap/RoomSessionMapService.class\" fileName=\"RoomSessionMapService.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\map\\UserSessionMap\" language=\"Unknown\" lines=\"16\" codeLines=\"16\" commentLines=\"0\" blankLines=\"0\" size=\"3497\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\map\\model\\Tile.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\map\\model\\Tile.class\" fullPath=\"backend/target/classes/com/project/RunGame/map/model/Tile.class\" fileName=\"Tile.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\map\\model\" language=\"Unknown\" lines=\"6\" codeLines=\"6\" commentLines=\"0\" blankLines=\"0\" size=\"3170\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\map\\model\\ProbabilityEntry.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\map\\model\\ProbabilityEntry.class\" fullPath=\"backend/target/classes/com/project/RunGame/map/model/ProbabilityEntry.class\" fileName=\"ProbabilityEntry.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\map\\model\" language=\"Unknown\" lines=\"11\" codeLines=\"11\" commentLines=\"0\" blankLines=\"0\" size=\"1023\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\map\\model\\Edge.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\map\\model\\Edge.class\" fullPath=\"backend/target/classes/com/project/RunGame/map/model/Edge.class\" fileName=\"Edge.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\map\\model\" language=\"Unknown\" lines=\"13\" codeLines=\"13\" commentLines=\"0\" blankLines=\"0\" size=\"1566\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\map\\model\\Coordinates.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\map\\model\\Coordinates.class\" fullPath=\"backend/target/classes/com/project/RunGame/map/model/Coordinates.class\" fileName=\"Coordinates.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\map\\model\" language=\"Unknown\" lines=\"12\" codeLines=\"12\" commentLines=\"0\" blankLines=\"0\" size=\"1819\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\map\\model\\BoundingBox.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\map\\model\\BoundingBox.class\" fullPath=\"backend/target/classes/com/project/RunGame/map/model/BoundingBox.class\" fileName=\"BoundingBox.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\map\\model\" language=\"Unknown\" lines=\"16\" codeLines=\"16\" commentLines=\"0\" blankLines=\"0\" size=\"3375\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\map\\controller\\MapController.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\map\\controller\\MapController.class\" fullPath=\"backend/target/classes/com/project/RunGame/map/controller/MapController.class\" fileName=\"MapController.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\map\\controller\" language=\"Unknown\" lines=\"9\" codeLines=\"9\" commentLines=\"0\" blankLines=\"0\" size=\"1207\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\monsters\\service\\RoomSessionMonsterService.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\monsters\\service\\RoomSessionMonsterService.class\" fullPath=\"backend/target/classes/com/project/RunGame/monsters/service/RoomSessionMonsterService.class\" fileName=\"RoomSessionMonsterService.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\monsters\\service\" language=\"Unknown\" lines=\"53\" codeLines=\"53\" commentLines=\"0\" blankLines=\"0\" size=\"8627\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\monsters\\service\\MonsterService.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\monsters\\service\\MonsterService.class\" fullPath=\"backend/target/classes/com/project/RunGame/monsters/service/MonsterService.class\" fileName=\"MonsterService.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\monsters\\service\" language=\"Unknown\" lines=\"4\" codeLines=\"4\" commentLines=\"0\" blankLines=\"0\" size=\"341\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\map\\controller\\MapEventListener.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\map\\controller\\MapEventListener.class\" fullPath=\"backend/target/classes/com/project/RunGame/map/controller/MapEventListener.class\" fileName=\"MapEventListener.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\map\\controller\" language=\"Unknown\" lines=\"12\" codeLines=\"12\" commentLines=\"0\" blankLines=\"0\" size=\"1489\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\helper\\DirectionEnum.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\helper\\DirectionEnum.class\" fullPath=\"backend/target/classes/com/project/RunGame/helper/DirectionEnum.class\" fileName=\"DirectionEnum.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\helper\" language=\"Unknown\" lines=\"21\" codeLines=\"21\" commentLines=\"0\" blankLines=\"0\" size=\"1923\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\game\\service\\RoomSessionGameClock.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\game\\service\\RoomSessionGameClock.class\" fullPath=\"backend/target/classes/com/project/RunGame/game/service/RoomSessionGameClock.class\" fileName=\"RoomSessionGameClock.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\game\\service\" language=\"Unknown\" lines=\"12\" codeLines=\"12\" commentLines=\"0\" blankLines=\"0\" size=\"1173\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\game\\service\\GameTasks.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\game\\service\\GameTasks.class\" fullPath=\"backend/target/classes/com/project/RunGame/game/service/GameTasks.class\" fileName=\"GameTasks.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\game\\service\" language=\"Unknown\" lines=\"8\" codeLines=\"8\" commentLines=\"0\" blankLines=\"0\" size=\"1637\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\game\\repository\\GameRepository.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\game\\repository\\GameRepository.class\" fullPath=\"backend/target/classes/com/project/RunGame/game/repository/GameRepository.class\" fileName=\"GameRepository.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\game\\repository\" language=\"Unknown\" lines=\"3\" codeLines=\"2\" commentLines=\"0\" blankLines=\"1\" size=\"365\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\game\\service\\GameService.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\game\\service\\GameService.class\" fullPath=\"backend/target/classes/com/project/RunGame/game/service/GameService.class\" fileName=\"GameService.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\game\\service\" language=\"Unknown\" lines=\"28\" codeLines=\"28\" commentLines=\"0\" blankLines=\"0\" size=\"4509\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\game\\service\\GameClock.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\game\\service\\GameClock.class\" fullPath=\"backend/target/classes/com/project/RunGame/game/service/GameClock.class\" fileName=\"GameClock.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\game\\service\" language=\"Unknown\" lines=\"24\" codeLines=\"24\" commentLines=\"0\" blankLines=\"0\" size=\"2757\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\game\\controller\\GameController.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\game\\controller\\GameController.class\" fullPath=\"backend/target/classes/com/project/RunGame/game/controller/GameController.class\" fileName=\"GameController.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\game\\controller\" language=\"Unknown\" lines=\"18\" codeLines=\"18\" commentLines=\"0\" blankLines=\"0\" size=\"2520\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\hero\\service\\UserSessionHeroes.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\hero\\service\\UserSessionHeroes.class\" fullPath=\"backend/target/classes/com/project/RunGame/hero/service/UserSessionHeroes.class\" fileName=\"UserSessionHeroes.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\hero\\service\" language=\"Unknown\" lines=\"34\" codeLines=\"34\" commentLines=\"0\" blankLines=\"0\" size=\"6143\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\hero\\service\\InputManager.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\hero\\service\\InputManager.class\" fullPath=\"backend/target/classes/com/project/RunGame/hero/service/InputManager.class\" fileName=\"InputManager.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\hero\\service\" language=\"Unknown\" lines=\"11\" codeLines=\"11\" commentLines=\"0\" blankLines=\"0\" size=\"2352\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\helper\\Coordinates.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\helper\\Coordinates.class\" fullPath=\"backend/target/classes/com/project/RunGame/helper/Coordinates.class\" fileName=\"Coordinates.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\helper\" language=\"Unknown\" lines=\"17\" codeLines=\"17\" commentLines=\"0\" blankLines=\"0\" size=\"2130\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\helper\\BoundingBox.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\helper\\BoundingBox.class\" fullPath=\"backend/target/classes/com/project/RunGame/helper/BoundingBox.class\" fileName=\"BoundingBox.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\helper\" language=\"Unknown\" lines=\"26\" codeLines=\"26\" commentLines=\"0\" blankLines=\"0\" size=\"3383\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\game\\model\\GameModel.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\game\\model\\GameModel.class\" fullPath=\"backend/target/classes/com/project/RunGame/game/model/GameModel.class\" fileName=\"GameModel.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\game\\model\" language=\"Unknown\" lines=\"7\" codeLines=\"7\" commentLines=\"0\" blankLines=\"0\" size=\"1029\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\monsters\\model\\MonsterStatusEnum.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\monsters\\model\\MonsterStatusEnum.class\" fullPath=\"backend/target/classes/com/project/RunGame/monsters/model/MonsterStatusEnum.class\" fileName=\"MonsterStatusEnum.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\monsters\\model\" language=\"Unknown\" lines=\"15\" codeLines=\"15\" commentLines=\"0\" blankLines=\"0\" size=\"1315\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\monsters\\model\\MonsterInMap.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\monsters\\model\\MonsterInMap.class\" fullPath=\"backend/target/classes/com/project/RunGame/monsters/model/MonsterInMap.class\" fileName=\"MonsterInMap.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\monsters\\model\" language=\"Unknown\" lines=\"24\" codeLines=\"24\" commentLines=\"0\" blankLines=\"0\" size=\"2267\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\monsters\\model\\MonsterFactory.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\monsters\\model\\MonsterFactory.class\" fullPath=\"backend/target/classes/com/project/RunGame/monsters/model/MonsterFactory.class\" fileName=\"MonsterFactory.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\monsters\\model\" language=\"Unknown\" lines=\"9\" codeLines=\"9\" commentLines=\"0\" blankLines=\"0\" size=\"801\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\monsters\\model\\MonsterDamageResult.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\monsters\\model\\MonsterDamageResult.class\" fullPath=\"backend/target/classes/com/project/RunGame/monsters/model/MonsterDamageResult.class\" fileName=\"MonsterDamageResult.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\monsters\\model\" language=\"Unknown\" lines=\"5\" codeLines=\"5\" commentLines=\"0\" blankLines=\"0\" size=\"1191\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\monsters\\controller\\MonstersController.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\monsters\\controller\\MonstersController.class\" fullPath=\"backend/target/classes/com/project/RunGame/monsters/controller/MonstersController.class\" fileName=\"MonstersController.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\monsters\\controller\" language=\"Unknown\" lines=\"21\" codeLines=\"21\" commentLines=\"0\" blankLines=\"0\" size=\"2427\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\monsters\\model\\Monster.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\monsters\\model\\Monster.class\" fullPath=\"backend/target/classes/com/project/RunGame/monsters/model/Monster.class\" fileName=\"Monster.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\monsters\\model\" language=\"Unknown\" lines=\"9\" codeLines=\"9\" commentLines=\"0\" blankLines=\"0\" size=\"734\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\monsters\\model\\MapOfMonster.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\monsters\\model\\MapOfMonster.class\" fullPath=\"backend/target/classes/com/project/RunGame/monsters/model/MapOfMonster.class\" fileName=\"MapOfMonster.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\monsters\\model\" language=\"Unknown\" lines=\"65\" codeLines=\"65\" commentLines=\"0\" blankLines=\"0\" size=\"8894\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\dto\\MessageDto.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\dto\\MessageDto.class\" fullPath=\"backend/target/classes/com/project/RunGame/dto/MessageDto.class\" fileName=\"MessageDto.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\dto\" language=\"Unknown\" lines=\"5\" codeLines=\"5\" commentLines=\"0\" blankLines=\"0\" size=\"710\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\dto\\GameStartRequest.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\dto\\GameStartRequest.class\" fullPath=\"backend/target/classes/com/project/RunGame/dto/GameStartRequest.class\" fileName=\"GameStartRequest.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\dto\" language=\"Unknown\" lines=\"6\" codeLines=\"6\" commentLines=\"0\" blankLines=\"0\" size=\"800\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\dto\\MonsterDto.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\dto\\MonsterDto.class\" fullPath=\"backend/target/classes/com/project/RunGame/dto/MonsterDto.class\" fileName=\"MonsterDto.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\dto\" language=\"Unknown\" lines=\"8\" codeLines=\"8\" commentLines=\"0\" blankLines=\"0\" size=\"1565\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\dto\\DamageMonsterDto.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\dto\\DamageMonsterDto.class\" fullPath=\"backend/target/classes/com/project/RunGame/dto/DamageMonsterDto.class\" fileName=\"DamageMonsterDto.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\dto\" language=\"Unknown\" lines=\"4\" codeLines=\"4\" commentLines=\"0\" blankLines=\"0\" size=\"1153\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\dto\\CreateHeroesDto.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\dto\\CreateHeroesDto.class\" fullPath=\"backend/target/classes/com/project/RunGame/dto/CreateHeroesDto.class\" fileName=\"CreateHeroesDto.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\dto\" language=\"Unknown\" lines=\"5\" codeLines=\"5\" commentLines=\"0\" blankLines=\"0\" size=\"943\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\hero\\controller\\MovementEventListener.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\hero\\controller\\MovementEventListener.class\" fullPath=\"backend/target/classes/com/project/RunGame/hero/controller/MovementEventListener.class\" fileName=\"MovementEventListener.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\hero\\controller\" language=\"Unknown\" lines=\"14\" codeLines=\"14\" commentLines=\"0\" blankLines=\"0\" size=\"1858\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\hero\\controller\\InputEventListener.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\hero\\controller\\InputEventListener.class\" fullPath=\"backend/target/classes/com/project/RunGame/hero/controller/InputEventListener.class\" fileName=\"InputEventListener.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\hero\\controller\" language=\"Unknown\" lines=\"15\" codeLines=\"15\" commentLines=\"0\" blankLines=\"0\" size=\"1693\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\game\\controller\\websockets\\WebSocketConfig.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\game\\controller\\websockets\\WebSocketConfig.class\" fullPath=\"backend/target/classes/com/project/RunGame/game/controller/websockets/WebSocketConfig.class\" fileName=\"WebSocketConfig.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\game\\controller\\websockets\" language=\"Unknown\" lines=\"9\" codeLines=\"9\" commentLines=\"0\" blankLines=\"0\" size=\"1731\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\game\\controller\\websockets\\GameWebSocket.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\game\\controller\\websockets\\GameWebSocket.class\" fullPath=\"backend/target/classes/com/project/RunGame/game/controller/websockets/GameWebSocket.class\" fileName=\"GameWebSocket.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\game\\controller\\websockets\" language=\"Unknown\" lines=\"70\" codeLines=\"70\" commentLines=\"0\" blankLines=\"0\" size=\"10477\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\hero\\controller\\HeroController.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\hero\\controller\\HeroController.class\" fullPath=\"backend/target/classes/com/project/RunGame/hero/controller/HeroController.class\" fileName=\"HeroController.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\hero\\controller\" language=\"Unknown\" lines=\"15\" codeLines=\"15\" commentLines=\"0\" blankLines=\"0\" size=\"2369\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\hero\\model\\ISkill.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\hero\\model\\ISkill.class\" fullPath=\"backend/target/classes/com/project/RunGame/hero/model/ISkill.class\" fileName=\"ISkill.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\hero\\model\" language=\"Unknown\" lines=\"3\" codeLines=\"3\" commentLines=\"0\" blankLines=\"0\" size=\"373\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\monsters\\model\\monstersType\\Zombie.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\monsters\\model\\monstersType\\Zombie.class\" fullPath=\"backend/target/classes/com/project/RunGame/monsters/model/monstersType/Zombie.class\" fileName=\"Zombie.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\monsters\\model\\monstersType\" language=\"Unknown\" lines=\"6\" codeLines=\"6\" commentLines=\"0\" blankLines=\"0\" size=\"461\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\hero\\model\\heroType\\HeroJohn.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\hero\\model\\heroType\\HeroJohn.class\" fullPath=\"backend/target/classes/com/project/RunGame/hero/model/heroType/HeroJohn.class\" fileName=\"HeroJohn.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\hero\\model\\heroType\" language=\"Unknown\" lines=\"7\" codeLines=\"7\" commentLines=\"0\" blankLines=\"0\" size=\"499\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\game\\controller\\websockets\\eventPublishers\\MovementEventPublisher.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\game\\controller\\websockets\\eventPublishers\\MovementEventPublisher.class\" fullPath=\"backend/target/classes/com/project/RunGame/game/controller/websockets/eventPublishers/MovementEventPublisher.class\" fileName=\"MovementEventPublisher.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\game\\controller\\websockets\\eventPublishers\" language=\"Unknown\" lines=\"5\" codeLines=\"5\" commentLines=\"0\" blankLines=\"0\" size=\"1508\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\game\\controller\\websockets\\eventPublishers\\MapEventPublisher.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\game\\controller\\websockets\\eventPublishers\\MapEventPublisher.class\" fullPath=\"backend/target/classes/com/project/RunGame/game/controller/websockets/eventPublishers/MapEventPublisher.class\" fileName=\"MapEventPublisher.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\game\\controller\\websockets\\eventPublishers\" language=\"Unknown\" lines=\"5\" codeLines=\"5\" commentLines=\"0\" blankLines=\"0\" size=\"1538\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\game\\controller\\websockets\\eventPublishers\\InputEventPublisher.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\game\\controller\\websockets\\eventPublishers\\InputEventPublisher.class\" fullPath=\"backend/target/classes/com/project/RunGame/game/controller/websockets/eventPublishers/InputEventPublisher.class\" fileName=\"InputEventPublisher.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\game\\controller\\websockets\\eventPublishers\" language=\"Unknown\" lines=\"6\" codeLines=\"6\" commentLines=\"0\" blankLines=\"0\" size=\"1396\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\dto\\eventsDto\\InputEvent.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\dto\\eventsDto\\InputEvent.class\" fullPath=\"backend/target/classes/com/project/RunGame/dto/eventsDto/InputEvent.class\" fileName=\"InputEvent.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\dto\\eventsDto\" language=\"Unknown\" lines=\"5\" codeLines=\"5\" commentLines=\"0\" blankLines=\"0\" size=\"1074\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\hero\\model\\skills\\Walk.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\hero\\model\\skills\\Walk.class\" fullPath=\"backend/target/classes/com/project/RunGame/hero/model/skills/Walk.class\" fileName=\"Walk.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\hero\\model\\skills\" language=\"Unknown\" lines=\"7\" codeLines=\"7\" commentLines=\"0\" blankLines=\"0\" size=\"763\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\hero\\model\\skills\\Slash.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\hero\\model\\skills\\Slash.class\" fullPath=\"backend/target/classes/com/project/RunGame/hero/model/skills/Slash.class\" fileName=\"Slash.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\hero\\model\\skills\" language=\"Unknown\" lines=\"14\" codeLines=\"14\" commentLines=\"0\" blankLines=\"0\" size=\"1562\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\hero\\model\\HeroInMap.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\hero\\model\\HeroInMap.class\" fullPath=\"backend/target/classes/com/project/RunGame/hero/model/HeroInMap.class\" fileName=\"HeroInMap.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\hero\\model\" language=\"Unknown\" lines=\"37\" codeLines=\"37\" commentLines=\"0\" blankLines=\"0\" size=\"4379\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\hero\\model\\HeroFactory.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\hero\\model\\HeroFactory.class\" fullPath=\"backend/target/classes/com/project/RunGame/hero/model/HeroFactory.class\" fileName=\"HeroFactory.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\hero\\model\" language=\"Unknown\" lines=\"8\" codeLines=\"8\" commentLines=\"0\" blankLines=\"0\" size=\"763\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\hero\\model\\Hero.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\hero\\model\\Hero.class\" fullPath=\"backend/target/classes/com/project/RunGame/hero/model/Hero.class\" fileName=\"Hero.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\hero\\model\" language=\"Unknown\" lines=\"21\" codeLines=\"21\" commentLines=\"0\" blankLines=\"0\" size=\"2285\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\hero\\model\\AbstractSkill.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\hero\\model\\AbstractSkill.class\" fullPath=\"backend/target/classes/com/project/RunGame/hero/model/AbstractSkill.class\" fileName=\"AbstractSkill.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\hero\\model\" language=\"Unknown\" lines=\"6\" codeLines=\"6\" commentLines=\"0\" blankLines=\"0\" size=\"540\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\dto\\eventsDto\\MapEvent.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\dto\\eventsDto\\MapEvent.class\" fullPath=\"backend/target/classes/com/project/RunGame/dto/eventsDto/MapEvent.class\" fileName=\"MapEvent.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\dto\\eventsDto\" language=\"Unknown\" lines=\"5\" codeLines=\"5\" commentLines=\"0\" blankLines=\"0\" size=\"1142\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\dto\\eventsDto\\MovementEvent.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\dto\\eventsDto\\MovementEvent.class\" fullPath=\"backend/target/classes/com/project/RunGame/dto/eventsDto/MovementEvent.class\" fileName=\"MovementEvent.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\dto\\eventsDto\" language=\"Unknown\" lines=\"5\" codeLines=\"5\" commentLines=\"0\" blankLines=\"0\" size=\"1195\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\application.properties\" relativePath=\"backend\\target\\classes\\application.properties\" fullPath=\"backend/target/classes/application.properties\" fileName=\"application.properties\" directory=\"backend\\target\\classes\" language=\"Unknown\" lines=\"4\" codeLines=\"4\" commentLines=\"0\" blankLines=\"0\" size=\"147\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\map\\services\\TileFinder.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\map\\services\\TileFinder.class\" fullPath=\"backend/target/classes/com/project/RunGame/map/services/TileFinder.class\" fileName=\"TileFinder.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\map\\services\" language=\"Unknown\" lines=\"88\" codeLines=\"88\" commentLines=\"0\" blankLines=\"0\" size=\"12390\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\map\\services\\MapService.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\map\\services\\MapService.class\" fullPath=\"backend/target/classes/com/project/RunGame/map/services/MapService.class\" fileName=\"MapService.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\map\\services\" language=\"Unknown\" lines=\"12\" codeLines=\"12\" commentLines=\"0\" blankLines=\"0\" size=\"2180\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\map\\services\\mapBuilder\\SpreadBuilderStrategy.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\map\\services\\mapBuilder\\SpreadBuilderStrategy.class\" fullPath=\"backend/target/classes/com/project/RunGame/map/services/mapBuilder/SpreadBuilderStrategy.class\" fileName=\"SpreadBuilderStrategy.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\map\\services\\mapBuilder\" language=\"Unknown\" lines=\"72\" codeLines=\"70\" commentLines=\"0\" blankLines=\"2\" size=\"8425\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\map\\services\\mapBuilder\\River.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\map\\services\\mapBuilder\\River.class\" fullPath=\"backend/target/classes/com/project/RunGame/map/services/mapBuilder/River.class\" fileName=\"River.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\map\\services\\mapBuilder\" language=\"Unknown\" lines=\"23\" codeLines=\"23\" commentLines=\"0\" blankLines=\"0\" size=\"3419\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\map\\services\\mapBuilder\\OrderBuilderStrategy.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\map\\services\\mapBuilder\\OrderBuilderStrategy.class\" fullPath=\"backend/target/classes/com/project/RunGame/map/services/mapBuilder/OrderBuilderStrategy.class\" fileName=\"OrderBuilderStrategy.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\map\\services\\mapBuilder\" language=\"Unknown\" lines=\"20\" codeLines=\"20\" commentLines=\"0\" blankLines=\"0\" size=\"4603\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\classes\\com\\project\\RunGame\\map\\services\\mapBuilder\\AbstractMapBuilderStrategy.class\" relativePath=\"backend\\target\\classes\\com\\project\\RunGame\\map\\services\\mapBuilder\\AbstractMapBuilderStrategy.class\" fullPath=\"backend/target/classes/com/project/RunGame/map/services/mapBuilder/AbstractMapBuilderStrategy.class\" fileName=\"AbstractMapBuilderStrategy.class\" directory=\"backend\\target\\classes\\com\\project\\RunGame\\map\\services\\mapBuilder\" language=\"Unknown\" lines=\"8\" codeLines=\"8\" commentLines=\"0\" blankLines=\"0\" size=\"749\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\target\\test-classes\\com\\project\\RunGame\\RunGameApplicationTests.class\" relativePath=\"backend\\target\\test-classes\\com\\project\\RunGame\\RunGameApplicationTests.class\" fullPath=\"backend/target/test-classes/com/project/RunGame/RunGameApplicationTests.class\" fileName=\"RunGameApplicationTests.class\" directory=\"backend\\target\\test-classes\\com\\project\\RunGame\" language=\"Unknown\" lines=\"5\" codeLines=\"5\" commentLines=\"0\" blankLines=\"0\" size=\"546\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\styles.css\" relativePath=\"frontend\\src\\styles.css\" fullPath=\"frontend/src/styles.css\" fileName=\"styles.css\" directory=\"frontend\\src\" language=\"CSS\" lines=\"2\" codeLines=\"0\" commentLines=\"1\" blankLines=\"1\" size=\"81\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\main.ts\" relativePath=\"frontend\\src\\main.ts\" fullPath=\"frontend/src/main.ts\" fileName=\"main.ts\" directory=\"frontend\\src\" language=\"TypeScript\" lines=\"7\" codeLines=\"5\" commentLines=\"0\" blankLines=\"2\" size=\"256\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\index.html\" relativePath=\"frontend\\src\\index.html\" fullPath=\"frontend/src/index.html\" fileName=\"index.html\" directory=\"frontend\\src\" language=\"HTML\" lines=\"14\" codeLines=\"13\" commentLines=\"0\" blankLines=\"1\" size=\"311\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\favicon.ico\" relativePath=\"frontend\\src\\favicon.ico\" fullPath=\"frontend/src/favicon.ico\" fileName=\"favicon.ico\" directory=\"frontend\\src\" language=\"Unknown\" lines=\"34\" codeLines=\"34\" commentLines=\"0\" blankLines=\"0\" size=\"14969\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\assets\\zombie.png\" relativePath=\"frontend\\src\\assets\\zombie.png\" fullPath=\"frontend/src/assets/zombie.png\" fileName=\"zombie.png\" directory=\"frontend\\src\\assets\" language=\"Unknown\" lines=\"187\" codeLines=\"187\" commentLines=\"0\" blankLines=\"0\" size=\"42967\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\assets\\Untitled-1.json\" relativePath=\"frontend\\src\\assets\\Untitled-1.json\" fullPath=\"frontend/src/assets/Untitled-1.json\" fileName=\"Untitled-1.json\" directory=\"frontend\\src\\assets\" language=\"JSON\" lines=\"560\" codeLines=\"559\" commentLines=\"0\" blankLines=\"1\" size=\"12515\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\assets\\grass2.png\" relativePath=\"frontend\\src\\assets\\grass2.png\" fullPath=\"frontend/src/assets/grass2.png\" fileName=\"grass2.png\" directory=\"frontend\\src\\assets\" language=\"Unknown\" lines=\"23\" codeLines=\"23\" commentLines=\"0\" blankLines=\"0\" size=\"7939\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\assets\\Grass.png\" relativePath=\"frontend\\src\\assets\\Grass.png\" fullPath=\"frontend/src/assets/Grass.png\" fileName=\"Grass.png\" directory=\"frontend\\src\\assets\" language=\"Unknown\" lines=\"18\" codeLines=\"18\" commentLines=\"0\" blankLines=\"0\" size=\"3569\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\assets\\BaseTile.png\" relativePath=\"frontend\\src\\assets\\BaseTile.png\" fullPath=\"frontend/src/assets/BaseTile.png\" fileName=\"BaseTile.png\" directory=\"frontend\\src\\assets\" language=\"Unknown\" lines=\"11\" codeLines=\"11\" commentLines=\"0\" blankLines=\"0\" size=\"1671\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\assets\\John\\tile000.png\" relativePath=\"frontend\\src\\assets\\John\\tile000.png\" fullPath=\"frontend/src/assets/John/tile000.png\" fileName=\"tile000.png\" directory=\"frontend\\src\\assets\\John\" language=\"Unknown\" lines=\"6\" codeLines=\"6\" commentLines=\"0\" blankLines=\"0\" size=\"591\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\assets\\John\\Sword_Run_with_shadow.png\" relativePath=\"frontend\\src\\assets\\John\\Sword_Run_with_shadow.png\" fullPath=\"frontend/src/assets/John/Sword_Run_with_shadow.png\" fileName=\"Sword_Run_with_shadow.png\" directory=\"frontend\\src\\assets\\John\" language=\"Unknown\" lines=\"36\" codeLines=\"36\" commentLines=\"0\" blankLines=\"0\" size=\"9708\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\assets\\John\\Sword_Idle_with_shadow.png\" relativePath=\"frontend\\src\\assets\\John\\Sword_Idle_with_shadow.png\" fullPath=\"frontend/src/assets/John/Sword_Idle_with_shadow.png\" fileName=\"Sword_Idle_with_shadow.png\" directory=\"frontend\\src\\assets\\John\" language=\"Unknown\" lines=\"10\" codeLines=\"10\" commentLines=\"0\" blankLines=\"0\" size=\"6531\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\assets\\John\\Sword_attack_with_shadow.png\" relativePath=\"frontend\\src\\assets\\John\\Sword_attack_with_shadow.png\" fullPath=\"frontend/src/assets/John/Sword_attack_with_shadow.png\" fileName=\"Sword_attack_with_shadow.png\" directory=\"frontend\\src\\assets\\John\" language=\"Unknown\" lines=\"50\" codeLines=\"50\" commentLines=\"0\" blankLines=\"0\" size=\"13208\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\app\\app.component.css\" relativePath=\"frontend\\src\\app\\app.component.css\" fullPath=\"frontend/src/app/app.component.css\" fileName=\"app.component.css\" directory=\"frontend\\src\\app\" language=\"CSS\" lines=\"1\" codeLines=\"0\" commentLines=\"0\" blankLines=\"1\" size=\"0\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\app\\app.component.ts\" relativePath=\"frontend\\src\\app\\app.component.ts\" fullPath=\"frontend/src/app/app.component.ts\" fileName=\"app.component.ts\" directory=\"frontend\\src\\app\" language=\"TypeScript\" lines=\"19\" codeLines=\"15\" commentLines=\"0\" blankLines=\"4\" size=\"488\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\app\\app.component.spec.ts\" relativePath=\"frontend\\src\\app\\app.component.spec.ts\" fullPath=\"frontend/src/app/app.component.spec.ts\" fileName=\"app.component.spec.ts\" directory=\"frontend\\src\\app\" language=\"TypeScript\" lines=\"30\" codeLines=\"25\" commentLines=\"0\" blankLines=\"5\" size=\"963\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\app\\app.config.ts\" relativePath=\"frontend\\src\\app\\app.config.ts\" fullPath=\"frontend/src/app/app.config.ts\" fileName=\"app.config.ts\" directory=\"frontend\\src\\app\" language=\"TypeScript\" lines=\"9\" codeLines=\"7\" commentLines=\"0\" blankLines=\"2\" size=\"313\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\app\\app.component.html\" relativePath=\"frontend\\src\\app\\app.component.html\" fullPath=\"frontend/src/app/app.component.html\" fileName=\"app.component.html\" directory=\"frontend\\src\\app\" language=\"HTML\" lines=\"6\" codeLines=\"3\" commentLines=\"0\" blankLines=\"3\" size=\"71\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\app\\app.routes.ts\" relativePath=\"frontend\\src\\app\\app.routes.ts\" fullPath=\"frontend/src/app/app.routes.ts\" fileName=\"app.routes.ts\" directory=\"frontend\\src\\app\" language=\"TypeScript\" lines=\"9\" codeLines=\"7\" commentLines=\"0\" blankLines=\"2\" size=\"286\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\app\\scene\\PlayerPositionManager.ts\" relativePath=\"frontend\\src\\app\\scene\\PlayerPositionManager.ts\" fullPath=\"frontend/src/app/scene/PlayerPositionManager.ts\" fileName=\"PlayerPositionManager.ts\" directory=\"frontend\\src\\app\\scene\" language=\"TypeScript\" lines=\"145\" codeLines=\"114\" commentLines=\"6\" blankLines=\"25\" size=\"5576\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\app\\scene\\Monsters.ts\" relativePath=\"frontend\\src\\app\\scene\\Monsters.ts\" fullPath=\"frontend/src/app/scene/Monsters.ts\" fileName=\"Monsters.ts\" directory=\"frontend\\src\\app\\scene\" language=\"TypeScript\" lines=\"136\" codeLines=\"122\" commentLines=\"0\" blankLines=\"14\" size=\"5716\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\app\\scene\\Maps.ts\" relativePath=\"frontend\\src\\app\\scene\\Maps.ts\" fullPath=\"frontend/src/app/scene/Maps.ts\" fileName=\"Maps.ts\" directory=\"frontend\\src\\app\\scene\" language=\"TypeScript\" lines=\"64\" codeLines=\"57\" commentLines=\"0\" blankLines=\"7\" size=\"2476\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\app\\scene\\MainScene.ts\" relativePath=\"frontend\\src\\app\\scene\\MainScene.ts\" fullPath=\"frontend/src/app/scene/MainScene.ts\" fileName=\"MainScene.ts\" directory=\"frontend\\src\\app\\scene\" language=\"TypeScript\" lines=\"213\" codeLines=\"177\" commentLines=\"0\" blankLines=\"36\" size=\"7509\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\app\\scene\\InputHandler.ts\" relativePath=\"frontend\\src\\app\\scene\\InputHandler.ts\" fullPath=\"frontend/src/app/scene/InputHandler.ts\" fileName=\"InputHandler.ts\" directory=\"frontend\\src\\app\\scene\" language=\"TypeScript\" lines=\"6\" codeLines=\"6\" commentLines=\"0\" blankLines=\"0\" size=\"129\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\app\\scene\\DirectionEnum.ts\" relativePath=\"frontend\\src\\app\\scene\\DirectionEnum.ts\" fullPath=\"frontend/src/app/scene/DirectionEnum.ts\" fileName=\"DirectionEnum.ts\" directory=\"frontend\\src\\app\\scene\" language=\"TypeScript\" lines=\"6\" codeLines=\"6\" commentLines=\"0\" blankLines=\"0\" size=\"87\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\app\\home\\home.component.ts\" relativePath=\"frontend\\src\\app\\home\\home.component.ts\" fullPath=\"frontend/src/app/home/home.component.ts\" fileName=\"home.component.ts\" directory=\"frontend\\src\\app\\home\" language=\"TypeScript\" lines=\"38\" codeLines=\"32\" commentLines=\"1\" blankLines=\"5\" size=\"1082\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\app\\home\\home.component.spec.ts\" relativePath=\"frontend\\src\\app\\home\\home.component.spec.ts\" fullPath=\"frontend/src/app/home/home.component.spec.ts\" fileName=\"home.component.spec.ts\" directory=\"frontend\\src\\app\\home\" language=\"TypeScript\" lines=\"24\" codeLines=\"18\" commentLines=\"0\" blankLines=\"6\" size=\"605\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\app\\home\\home.component.html\" relativePath=\"frontend\\src\\app\\home\\home.component.html\" fullPath=\"frontend/src/app/home/home.component.html\" fileName=\"home.component.html\" directory=\"frontend\\src\\app\\home\" language=\"HTML\" lines=\"6\" codeLines=\"5\" commentLines=\"0\" blankLines=\"1\" size=\"245\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\app\\home\\home.component.css\" relativePath=\"frontend\\src\\app\\home\\home.component.css\" fullPath=\"frontend/src/app/home/home.component.css\" fileName=\"home.component.css\" directory=\"frontend\\src\\app\\home\" language=\"CSS\" lines=\"1\" codeLines=\"0\" commentLines=\"0\" blankLines=\"1\" size=\"0\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\app\\player-selection\\player-selection.component.ts\" relativePath=\"frontend\\src\\app\\player-selection\\player-selection.component.ts\" fullPath=\"frontend/src/app/player-selection/player-selection.component.ts\" fileName=\"player-selection.component.ts\" directory=\"frontend\\src\\app\\player-selection\" language=\"TypeScript\" lines=\"13\" codeLines=\"10\" commentLines=\"0\" blankLines=\"3\" size=\"285\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\app\\player-selection\\player-selection.component.spec.ts\" relativePath=\"frontend\\src\\app\\player-selection\\player-selection.component.spec.ts\" fullPath=\"frontend/src/app/player-selection/player-selection.component.spec.ts\" fileName=\"player-selection.component.spec.ts\" directory=\"frontend\\src\\app\\player-selection\" language=\"TypeScript\" lines=\"24\" codeLines=\"18\" commentLines=\"0\" blankLines=\"6\" size=\"683\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\app\\player-selection\\player-selection.component.html\" relativePath=\"frontend\\src\\app\\player-selection\\player-selection.component.html\" fullPath=\"frontend/src/app/player-selection/player-selection.component.html\" fileName=\"player-selection.component.html\" directory=\"frontend\\src\\app\\player-selection\" language=\"HTML\" lines=\"2\" codeLines=\"1\" commentLines=\"0\" blankLines=\"1\" size=\"32\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\app\\player-selection\\player-selection.component.css\" relativePath=\"frontend\\src\\app\\player-selection\\player-selection.component.css\" fullPath=\"frontend/src/app/player-selection/player-selection.component.css\" fileName=\"player-selection.component.css\" directory=\"frontend\\src\\app\\player-selection\" language=\"CSS\" lines=\"1\" codeLines=\"0\" commentLines=\"0\" blankLines=\"1\" size=\"0\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\app\\room\\room.component.ts\" relativePath=\"frontend\\src\\app\\room\\room.component.ts\" fullPath=\"frontend/src/app/room/room.component.ts\" fileName=\"room.component.ts\" directory=\"frontend\\src\\app\\room\" language=\"TypeScript\" lines=\"58\" codeLines=\"53\" commentLines=\"0\" blankLines=\"5\" size=\"1887\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\app\\room\\room.component.spec.ts\" relativePath=\"frontend\\src\\app\\room\\room.component.spec.ts\" fullPath=\"frontend/src/app/room/room.component.spec.ts\" fileName=\"room.component.spec.ts\" directory=\"frontend\\src\\app\\room\" language=\"TypeScript\" lines=\"24\" codeLines=\"18\" commentLines=\"0\" blankLines=\"6\" size=\"605\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\app\\room\\room.component.html\" relativePath=\"frontend\\src\\app\\room\\room.component.html\" fullPath=\"frontend/src/app/room/room.component.html\" fileName=\"room.component.html\" directory=\"frontend\\src\\app\\room\" language=\"HTML\" lines=\"16\" codeLines=\"10\" commentLines=\"0\" blankLines=\"6\" size=\"323\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\app\\room\\room.component.css\" relativePath=\"frontend\\src\\app\\room\\room.component.css\" fullPath=\"frontend/src/app/room/room.component.css\" fileName=\"room.component.css\" directory=\"frontend\\src\\app\\room\" language=\"CSS\" lines=\"1\" codeLines=\"0\" commentLines=\"0\" blankLines=\"1\" size=\"0\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\app\\MonsterDto.ts\" relativePath=\"frontend\\src\\app\\MonsterDto.ts\" fullPath=\"frontend/src/app/MonsterDto.ts\" fileName=\"MonsterDto.ts\" directory=\"frontend\\src\\app\" language=\"TypeScript\" lines=\"11\" codeLines=\"10\" commentLines=\"0\" blankLines=\"1\" size=\"229\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\app\\game\\skills\\BaseSkill.ts\" relativePath=\"frontend\\src\\app\\game\\skills\\BaseSkill.ts\" fullPath=\"frontend/src/app/game/skills/BaseSkill.ts\" fileName=\"BaseSkill.ts\" directory=\"frontend\\src\\app\\game\\skills\" language=\"TypeScript\" lines=\"52\" codeLines=\"41\" commentLines=\"0\" blankLines=\"11\" size=\"1619\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\app\\game\\skills\\FrontendSkillsManager.ts\" relativePath=\"frontend\\src\\app\\game\\skills\\FrontendSkillsManager.ts\" fullPath=\"frontend/src/app/game/skills/FrontendSkillsManager.ts\" fileName=\"FrontendSkillsManager.ts\" directory=\"frontend\\src\\app\\game\\skills\" language=\"TypeScript\" lines=\"51\" codeLines=\"42\" commentLines=\"0\" blankLines=\"9\" size=\"1580\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\app\\game\\skills\\slash.ts\" relativePath=\"frontend\\src\\app\\game\\skills\\slash.ts\" fullPath=\"frontend/src/app/game/skills/slash.ts\" fileName=\"slash.ts\" directory=\"frontend\\src\\app\\game\\skills\" language=\"TypeScript\" lines=\"46\" codeLines=\"40\" commentLines=\"0\" blankLines=\"6\" size=\"1311\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\app\\game\\skills\\SkillsFactory.ts\" relativePath=\"frontend\\src\\app\\game\\skills\\SkillsFactory.ts\" fullPath=\"frontend/src/app/game/skills/SkillsFactory.ts\" fileName=\"SkillsFactory.ts\" directory=\"frontend\\src\\app\\game\\skills\" language=\"TypeScript\" lines=\"19\" codeLines=\"14\" commentLines=\"0\" blankLines=\"5\" size=\"427\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\app\\game\\game.component.ts\" relativePath=\"frontend\\src\\app\\game\\game.component.ts\" fullPath=\"frontend/src/app/game/game.component.ts\" fileName=\"game.component.ts\" directory=\"frontend\\src\\app\\game\" language=\"TypeScript\" lines=\"35\" codeLines=\"30\" commentLines=\"0\" blankLines=\"5\" size=\"1002\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\app\\game\\game.component.spec.ts\" relativePath=\"frontend\\src\\app\\game\\game.component.spec.ts\" fullPath=\"frontend/src/app/game/game.component.spec.ts\" fileName=\"game.component.spec.ts\" directory=\"frontend\\src\\app\\game\" language=\"TypeScript\" lines=\"24\" codeLines=\"18\" commentLines=\"0\" blankLines=\"6\" size=\"605\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\app\\game\\game.component.html\" relativePath=\"frontend\\src\\app\\game\\game.component.html\" fullPath=\"frontend/src/app/game/game.component.html\" fileName=\"game.component.html\" directory=\"frontend\\src\\app\\game\" language=\"HTML\" lines=\"2\" codeLines=\"0\" commentLines=\"0\" blankLines=\"2\" size=\"2\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\app\\game\\game.component.css\" relativePath=\"frontend\\src\\app\\game\\game.component.css\" fullPath=\"frontend/src/app/game/game.component.css\" fileName=\"game.component.css\" directory=\"frontend\\src\\app\\game\" language=\"CSS\" lines=\"1\" codeLines=\"0\" commentLines=\"0\" blankLines=\"1\" size=\"0\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\app\\controller\\GameController.ts\" relativePath=\"frontend\\src\\app\\controller\\GameController.ts\" fullPath=\"frontend/src/app/controller/GameController.ts\" fileName=\"GameController.ts\" directory=\"frontend\\src\\app\\controller\" language=\"TypeScript\" lines=\"30\" codeLines=\"25\" commentLines=\"1\" blankLines=\"4\" size=\"864\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\tsconfig.spec.json\" relativePath=\"frontend\\tsconfig.spec.json\" fullPath=\"frontend/tsconfig.spec.json\" fileName=\"tsconfig.spec.json\" directory=\"frontend\" language=\"JSON\" lines=\"15\" codeLines=\"14\" commentLines=\"0\" blankLines=\"1\" size=\"287\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\tsconfig.json\" relativePath=\"frontend\\tsconfig.json\" fullPath=\"frontend/tsconfig.json\" fileName=\"tsconfig.json\" directory=\"frontend\" language=\"JSON\" lines=\"33\" codeLines=\"32\" commentLines=\"0\" blankLines=\"1\" size=\"889\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\tsconfig.app.json\" relativePath=\"frontend\\tsconfig.app.json\" fullPath=\"frontend/tsconfig.app.json\" fileName=\"tsconfig.app.json\" directory=\"frontend\" language=\"JSON\" lines=\"15\" codeLines=\"14\" commentLines=\"0\" blankLines=\"1\" size=\"277\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\README.md\" relativePath=\"frontend\\README.md\" fullPath=\"frontend/README.md\" fileName=\"README.md\" directory=\"frontend\" language=\"Markdown\" lines=\"28\" codeLines=\"14\" commentLines=\"0\" blankLines=\"14\" size=\"1094\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\app\\controller\\webSockets\\WebSocketService.ts\" relativePath=\"frontend\\src\\app\\controller\\webSockets\\WebSocketService.ts\" fullPath=\"frontend/src/app/controller/webSockets/WebSocketService.ts\" fileName=\"WebSocketService.ts\" directory=\"frontend\\src\\app\\controller\\webSockets\" language=\"TypeScript\" lines=\"48\" codeLines=\"42\" commentLines=\"0\" blankLines=\"6\" size=\"1476\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\src\\app\\controller\\webSockets\\KeyWebSocketService.ts\" relativePath=\"frontend\\src\\app\\controller\\webSockets\\KeyWebSocketService.ts\" fullPath=\"frontend/src/app/controller/webSockets/KeyWebSocketService.ts\" fileName=\"KeyWebSocketService.ts\" directory=\"frontend\\src\\app\\controller\\webSockets\" language=\"TypeScript\" lines=\"41\" codeLines=\"35\" commentLines=\"0\" blankLines=\"6\" size=\"1786\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\frontend\\angular.json\" relativePath=\"frontend\\angular.json\" fullPath=\"frontend/angular.json\" fileName=\"angular.json\" directory=\"frontend\" language=\"JSON\" lines=\"96\" codeLines=\"95\" commentLines=\"0\" blankLines=\"1\" size=\"2719\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\pom.xml\" relativePath=\"backend\\pom.xml\" fullPath=\"backend/pom.xml\" fileName=\"pom.xml\" directory=\"backend\" language=\"XML\" lines=\"94\" codeLines=\"82\" commentLines=\"0\" blankLines=\"12\" size=\"2458\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\mvnw.cmd\" relativePath=\"backend\\mvnw.cmd\" fullPath=\"backend/mvnw.cmd\" fileName=\"mvnw.cmd\" directory=\"backend\" language=\"Unknown\" lines=\"190\" codeLines=\"165\" commentLines=\"0\" blankLines=\"25\" size=\"8292\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\mvnw\" relativePath=\"backend\\mvnw\" fullPath=\"backend/mvnw\" fileName=\"mvnw\" directory=\"backend\" language=\"Unknown\" lines=\"296\" codeLines=\"263\" commentLines=\"0\" blankLines=\"33\" size=\"11790\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\HELP.md\" relativePath=\"backend\\HELP.md\" fullPath=\"backend/HELP.md\" fileName=\"HELP.md\" directory=\"backend\" language=\"Markdown\" lines=\"17\" codeLines=\"11\" commentLines=\"0\" blankLines=\"6\" size=\"828\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\resources\\Tiles.json\" relativePath=\"backend\\src\\main\\resources\\Tiles.json\" fullPath=\"backend/src/main/resources/Tiles.json\" fileName=\"Tiles.json\" directory=\"backend\\src\\main\\resources\" language=\"JSON\" lines=\"686\" codeLines=\"681\" commentLines=\"0\" blankLines=\"5\" size=\"14864\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\resources\\application.properties\" relativePath=\"backend\\src\\main\\resources\\application.properties\" fullPath=\"backend/src/main/resources/application.properties\" fileName=\"application.properties\" directory=\"backend\\src\\main\\resources\" language=\"Unknown\" lines=\"4\" codeLines=\"4\" commentLines=\"0\" blankLines=\"0\" size=\"147\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\resources\\TilesLowWaterProba.json\" relativePath=\"backend\\src\\main\\resources\\TilesLowWaterProba.json\" fullPath=\"backend/src/main/resources/TilesLowWaterProba.json\" fileName=\"TilesLowWaterProba.json\" directory=\"backend\\src\\main\\resources\" language=\"JSON\" lines=\"356\" codeLines=\"351\" commentLines=\"0\" blankLines=\"5\" size=\"9207\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\helper\\BoundingBox.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\helper\\BoundingBox.java\" fullPath=\"backend/src/main/java/com/project/RunGame/helper/BoundingBox.java\" fileName=\"BoundingBox.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\helper\" language=\"Java\" lines=\"73\" codeLines=\"63\" commentLines=\"0\" blankLines=\"10\" size=\"2001\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\helper\\DirectionEnum.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\helper\\DirectionEnum.java\" fullPath=\"backend/src/main/java/com/project/RunGame/helper/DirectionEnum.java\" fileName=\"DirectionEnum.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\helper\" language=\"Java\" lines=\"29\" codeLines=\"25\" commentLines=\"0\" blankLines=\"4\" size=\"855\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\helper\\Coordinates.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\helper\\Coordinates.java\" fullPath=\"backend/src/main/java/com/project/RunGame/helper/Coordinates.java\" fileName=\"Coordinates.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\helper\" language=\"Java\" lines=\"49\" codeLines=\"41\" commentLines=\"0\" blankLines=\"8\" size=\"1006\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\RunGameApplication.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\RunGameApplication.java\" fullPath=\"backend/src/main/java/com/project/RunGame/RunGameApplication.java\" fileName=\"RunGameApplication.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\" language=\"Java\" lines=\"13\" codeLines=\"9\" commentLines=\"0\" blankLines=\"4\" size=\"313\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\test\\java\\com\\project\\RunGame\\RunGameApplicationTests.java\" relativePath=\"backend\\src\\test\\java\\com\\project\\RunGame\\RunGameApplicationTests.java\" fullPath=\"backend/src/test/java/com/project/RunGame/RunGameApplicationTests.java\" fileName=\"RunGameApplicationTests.java\" directory=\"backend\\src\\test\\java\\com\\project\\RunGame\" language=\"Java\" lines=\"14\" codeLines=\"9\" commentLines=\"0\" blankLines=\"5\" size=\"212\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\user\\service\\RoomSession.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\user\\service\\RoomSession.java\" fullPath=\"backend/src/main/java/com/project/RunGame/user/service/RoomSession.java\" fileName=\"RoomSession.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\user\\service\" language=\"Java\" lines=\"51\" codeLines=\"43\" commentLines=\"0\" blankLines=\"8\" size=\"1331\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\user\\controller\\UserController.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\user\\controller\\UserController.java\" fullPath=\"backend/src/main/java/com/project/RunGame/user/controller/UserController.java\" fileName=\"UserController.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\user\\controller\" language=\"Java\" lines=\"34\" codeLines=\"23\" commentLines=\"0\" blankLines=\"11\" size=\"892\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\monsters\\service\\RoomSessionMonsterService.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\monsters\\service\\RoomSessionMonsterService.java\" fullPath=\"backend/src/main/java/com/project/RunGame/monsters/service/RoomSessionMonsterService.java\" fileName=\"RoomSessionMonsterService.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\monsters\\service\" language=\"Java\" lines=\"148\" codeLines=\"118\" commentLines=\"0\" blankLines=\"30\" size=\"5497\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\monsters\\service\\MonsterService.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\monsters\\service\\MonsterService.java\" fullPath=\"backend/src/main/java/com/project/RunGame/monsters/service/MonsterService.java\" fileName=\"MonsterService.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\monsters\\service\" language=\"Java\" lines=\"6\" codeLines=\"3\" commentLines=\"0\" blankLines=\"3\" size=\"85\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\map\\UserSessionMap\\RoomSessionMapService.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\map\\UserSessionMap\\RoomSessionMapService.java\" fullPath=\"backend/src/main/java/com/project/RunGame/map/UserSessionMap/RoomSessionMapService.java\" fileName=\"RoomSessionMapService.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\map\\UserSessionMap\" language=\"Java\" lines=\"60\" codeLines=\"46\" commentLines=\"0\" blankLines=\"14\" size=\"1917\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\map\\services\\TileFinder.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\map\\services\\TileFinder.java\" fullPath=\"backend/src/main/java/com/project/RunGame/map/services/TileFinder.java\" fileName=\"TileFinder.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\map\\services\" language=\"Java\" lines=\"242\" codeLines=\"200\" commentLines=\"4\" blankLines=\"38\" size=\"10736\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\map\\services\\MapService.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\map\\services\\MapService.java\" fullPath=\"backend/src/main/java/com/project/RunGame/map/services/MapService.java\" fileName=\"MapService.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\map\\services\" language=\"Java\" lines=\"42\" codeLines=\"31\" commentLines=\"0\" blankLines=\"11\" size=\"1262\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\map\\model\\Tile.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\map\\model\\Tile.java\" fullPath=\"backend/src/main/java/com/project/RunGame/map/model/Tile.java\" fileName=\"Tile.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\map\\model\" language=\"Java\" lines=\"48\" codeLines=\"43\" commentLines=\"0\" blankLines=\"5\" size=\"1352\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\map\\model\\ProbabilityEntry.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\map\\model\\ProbabilityEntry.java\" fullPath=\"backend/src/main/java/com/project/RunGame/map/model/ProbabilityEntry.java\" fileName=\"ProbabilityEntry.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\map\\model\" language=\"Java\" lines=\"23\" codeLines=\"16\" commentLines=\"0\" blankLines=\"7\" size=\"575\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\map\\model\\Edge.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\map\\model\\Edge.java\" fullPath=\"backend/src/main/java/com/project/RunGame/map/model/Edge.java\" fileName=\"Edge.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\map\\model\" language=\"Java\" lines=\"33\" codeLines=\"26\" commentLines=\"0\" blankLines=\"7\" size=\"716\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\map\\model\\Coordinates.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\map\\model\\Coordinates.java\" fullPath=\"backend/src/main/java/com/project/RunGame/map/model/Coordinates.java\" fileName=\"Coordinates.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\map\\model\" language=\"Java\" lines=\"48\" codeLines=\"38\" commentLines=\"0\" blankLines=\"10\" size=\"853\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\map\\model\\BoundingBox.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\map\\model\\BoundingBox.java\" fullPath=\"backend/src/main/java/com/project/RunGame/map/model/BoundingBox.java\" fileName=\"BoundingBox.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\map\\model\" language=\"Java\" lines=\"73\" codeLines=\"63\" commentLines=\"0\" blankLines=\"10\" size=\"2258\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\map\\controller\\MapEventListener.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\map\\controller\\MapEventListener.java\" fullPath=\"backend/src/main/java/com/project/RunGame/map/controller/MapEventListener.java\" fileName=\"MapEventListener.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\map\\controller\" language=\"Java\" lines=\"23\" codeLines=\"16\" commentLines=\"0\" blankLines=\"7\" size=\"728\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\map\\controller\\MapController.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\map\\controller\\MapController.java\" fullPath=\"backend/src/main/java/com/project/RunGame/map/controller/MapController.java\" fileName=\"MapController.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\map\\controller\" language=\"Java\" lines=\"23\" codeLines=\"18\" commentLines=\"0\" blankLines=\"5\" size=\"774\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\monsters\\model\\MonsterFactory.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\monsters\\model\\MonsterFactory.java\" fullPath=\"backend/src/main/java/com/project/RunGame/monsters/model/MonsterFactory.java\" fileName=\"MonsterFactory.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\monsters\\model\" language=\"Java\" lines=\"16\" codeLines=\"12\" commentLines=\"0\" blankLines=\"4\" size=\"334\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\monsters\\model\\MonsterDamageResult.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\monsters\\model\\MonsterDamageResult.java\" fullPath=\"backend/src/main/java/com/project/RunGame/monsters/model/MonsterDamageResult.java\" fileName=\"MonsterDamageResult.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\monsters\\model\" language=\"Java\" lines=\"22\" codeLines=\"16\" commentLines=\"0\" blankLines=\"6\" size=\"662\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\monsters\\model\\Monster.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\monsters\\model\\Monster.java\" fullPath=\"backend/src/main/java/com/project/RunGame/monsters/model/Monster.java\" fileName=\"Monster.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\monsters\\model\" language=\"Java\" lines=\"22\" codeLines=\"18\" commentLines=\"0\" blankLines=\"4\" size=\"423\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\monsters\\model\\MapOfMonster.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\monsters\\model\\MapOfMonster.java\" fullPath=\"backend/src/main/java/com/project/RunGame/monsters/model/MapOfMonster.java\" fileName=\"MapOfMonster.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\monsters\\model\" language=\"Java\" lines=\"163\" codeLines=\"128\" commentLines=\"3\" blankLines=\"32\" size=\"6228\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\map\\services\\mapBuilder\\SpreadBuilderStrategy.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\map\\services\\mapBuilder\\SpreadBuilderStrategy.java\" fullPath=\"backend/src/main/java/com/project/RunGame/map/services/mapBuilder/SpreadBuilderStrategy.java\" fileName=\"SpreadBuilderStrategy.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\map\\services\\mapBuilder\" language=\"Java\" lines=\"153\" codeLines=\"123\" commentLines=\"1\" blankLines=\"29\" size=\"6689\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\map\\services\\mapBuilder\\River.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\map\\services\\mapBuilder\\River.java\" fullPath=\"backend/src/main/java/com/project/RunGame/map/services/mapBuilder/River.java\" fileName=\"River.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\map\\services\\mapBuilder\" language=\"Java\" lines=\"104\" codeLines=\"86\" commentLines=\"0\" blankLines=\"18\" size=\"3361\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\map\\services\\mapBuilder\\OrderBuilderStrategy.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\map\\services\\mapBuilder\\OrderBuilderStrategy.java\" fullPath=\"backend/src/main/java/com/project/RunGame/map/services/mapBuilder/OrderBuilderStrategy.java\" fileName=\"OrderBuilderStrategy.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\map\\services\\mapBuilder\" language=\"Java\" lines=\"98\" codeLines=\"82\" commentLines=\"0\" blankLines=\"16\" size=\"3460\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\monsters\\controller\\MonstersController.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\monsters\\controller\\MonstersController.java\" fullPath=\"backend/src/main/java/com/project/RunGame/monsters/controller/MonstersController.java\" fileName=\"MonstersController.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\monsters\\controller\" language=\"Java\" lines=\"49\" codeLines=\"39\" commentLines=\"0\" blankLines=\"10\" size=\"1743\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\map\\services\\mapBuilder\\AbstractMapBuilderStrategy.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\map\\services\\mapBuilder\\AbstractMapBuilderStrategy.java\" fullPath=\"backend/src/main/java/com/project/RunGame/map/services/mapBuilder/AbstractMapBuilderStrategy.java\" fileName=\"AbstractMapBuilderStrategy.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\map\\services\\mapBuilder\" language=\"Java\" lines=\"17\" codeLines=\"11\" commentLines=\"0\" blankLines=\"6\" size=\"458\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\hero\\model\\HeroInMap.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\hero\\model\\HeroInMap.java\" fullPath=\"backend/src/main/java/com/project/RunGame/hero/model/HeroInMap.java\" fileName=\"HeroInMap.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\hero\\model\" language=\"Java\" lines=\"93\" codeLines=\"78\" commentLines=\"1\" blankLines=\"14\" size=\"2863\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\monsters\\model\\monstersType\\Zombie.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\monsters\\model\\monstersType\\Zombie.java\" fullPath=\"backend/src/main/java/com/project/RunGame/monsters/model/monstersType/Zombie.java\" fileName=\"Zombie.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\monsters\\model\\monstersType\" language=\"Java\" lines=\"12\" codeLines=\"8\" commentLines=\"0\" blankLines=\"4\" size=\"226\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\hero\\controller\\MovementEventListener.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\hero\\controller\\MovementEventListener.java\" fullPath=\"backend/src/main/java/com/project/RunGame/hero/controller/MovementEventListener.java\" fileName=\"MovementEventListener.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\hero\\controller\" language=\"Java\" lines=\"32\" codeLines=\"23\" commentLines=\"0\" blankLines=\"9\" size=\"996\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\hero\\controller\\InputEventListener.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\hero\\controller\\InputEventListener.java\" fullPath=\"backend/src/main/java/com/project/RunGame/hero/controller/InputEventListener.java\" fileName=\"InputEventListener.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\hero\\controller\" language=\"Java\" lines=\"29\" codeLines=\"20\" commentLines=\"0\" blankLines=\"9\" size=\"827\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\hero\\controller\\HeroController.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\hero\\controller\\HeroController.java\" fullPath=\"backend/src/main/java/com/project/RunGame/hero/controller/HeroController.java\" fileName=\"HeroController.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\hero\\controller\" language=\"Java\" lines=\"43\" codeLines=\"35\" commentLines=\"0\" blankLines=\"8\" size=\"1485\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\hero\\service\\UserSessionHeroes.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\hero\\service\\UserSessionHeroes.java\" fullPath=\"backend/src/main/java/com/project/RunGame/hero/service/UserSessionHeroes.java\" fileName=\"UserSessionHeroes.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\hero\\service\" language=\"Java\" lines=\"126\" codeLines=\"100\" commentLines=\"3\" blankLines=\"23\" size=\"4226\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\hero\\service\\InputManager.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\hero\\service\\InputManager.java\" fullPath=\"backend/src/main/java/com/project/RunGame/hero/service/InputManager.java\" fileName=\"InputManager.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\hero\\service\" language=\"Java\" lines=\"36\" codeLines=\"25\" commentLines=\"0\" blankLines=\"11\" size=\"1048\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\hero\\model\\ISkill.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\hero\\model\\ISkill.java\" fullPath=\"backend/src/main/java/com/project/RunGame/hero/model/ISkill.java\" fileName=\"ISkill.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\hero\\model\" language=\"Java\" lines=\"16\" codeLines=\"9\" commentLines=\"0\" blankLines=\"7\" size=\"347\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\hero\\model\\HeroFactory.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\hero\\model\\HeroFactory.java\" fullPath=\"backend/src/main/java/com/project/RunGame/hero/model/HeroFactory.java\" fileName=\"HeroFactory.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\hero\\model\" language=\"Java\" lines=\"17\" codeLines=\"12\" commentLines=\"0\" blankLines=\"5\" size=\"311\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\hero\\model\\Hero.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\hero\\model\\Hero.java\" fullPath=\"backend/src/main/java/com/project/RunGame/hero/model/Hero.java\" fileName=\"Hero.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\hero\\model\" language=\"Java\" lines=\"48\" codeLines=\"34\" commentLines=\"0\" blankLines=\"14\" size=\"1165\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\hero\\model\\AbstractSkill.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\hero\\model\\AbstractSkill.java\" fullPath=\"backend/src/main/java/com/project/RunGame/hero/model/AbstractSkill.java\" fileName=\"AbstractSkill.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\hero\\model\" language=\"Java\" lines=\"11\" codeLines=\"7\" commentLines=\"0\" blankLines=\"4\" size=\"198\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\hero\\model\\heroType\\HeroJohn.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\hero\\model\\heroType\\HeroJohn.java\" fullPath=\"backend/src/main/java/com/project/RunGame/hero/model/heroType/HeroJohn.java\" fileName=\"HeroJohn.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\hero\\model\\heroType\" language=\"Java\" lines=\"11\" codeLines=\"7\" commentLines=\"0\" blankLines=\"4\" size=\"195\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\monsters\\model\\MonsterStatusEnum.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\monsters\\model\\MonsterStatusEnum.java\" fullPath=\"backend/src/main/java/com/project/RunGame/monsters/model/MonsterStatusEnum.java\" fileName=\"MonsterStatusEnum.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\monsters\\model\" language=\"Java\" lines=\"6\" codeLines=\"4\" commentLines=\"0\" blankLines=\"2\" size=\"104\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\monsters\\model\\MonsterInMap.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\monsters\\model\\MonsterInMap.java\" fullPath=\"backend/src/main/java/com/project/RunGame/monsters/model/MonsterInMap.java\" fileName=\"MonsterInMap.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\monsters\\model\" language=\"Java\" lines=\"51\" codeLines=\"42\" commentLines=\"0\" blankLines=\"9\" size=\"1461\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\game\\service\\GameTasks.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\game\\service\\GameTasks.java\" fullPath=\"backend/src/main/java/com/project/RunGame/game/service/GameTasks.java\" fileName=\"GameTasks.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\game\\service\" language=\"Java\" lines=\"38\" codeLines=\"28\" commentLines=\"0\" blankLines=\"10\" size=\"1174\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\game\\service\\GameService.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\game\\service\\GameService.java\" fullPath=\"backend/src/main/java/com/project/RunGame/game/service/GameService.java\" fileName=\"GameService.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\game\\service\" language=\"Java\" lines=\"94\" codeLines=\"70\" commentLines=\"1\" blankLines=\"23\" size=\"2944\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\game\\service\\RoomSessionGameClock.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\game\\service\\RoomSessionGameClock.java\" fullPath=\"backend/src/main/java/com/project/RunGame/game/service/RoomSessionGameClock.java\" fileName=\"RoomSessionGameClock.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\game\\service\" language=\"Java\" lines=\"20\" codeLines=\"15\" commentLines=\"0\" blankLines=\"5\" size=\"506\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\game\\service\\GameClock.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\game\\service\\GameClock.java\" fullPath=\"backend/src/main/java/com/project/RunGame/game/service/GameClock.java\" fileName=\"GameClock.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\game\\service\" language=\"Java\" lines=\"51\" codeLines=\"41\" commentLines=\"0\" blankLines=\"10\" size=\"1366\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\game\\repository\\GameRepository.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\game\\repository\\GameRepository.java\" fullPath=\"backend/src/main/java/com/project/RunGame/game/repository/GameRepository.java\" fileName=\"GameRepository.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\game\\repository\" language=\"Java\" lines=\"10\" codeLines=\"5\" commentLines=\"0\" blankLines=\"5\" size=\"245\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\game\\model\\GameModel.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\game\\model\\GameModel.java\" fullPath=\"backend/src/main/java/com/project/RunGame/game/model/GameModel.java\" fileName=\"GameModel.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\game\\model\" language=\"Java\" lines=\"37\" codeLines=\"24\" commentLines=\"0\" blankLines=\"13\" size=\"680\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\hero\\model\\skills\\Walk.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\hero\\model\\skills\\Walk.java\" fullPath=\"backend/src/main/java/com/project/RunGame/hero/model/skills/Walk.java\" fileName=\"Walk.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\hero\\model\\skills\" language=\"Java\" lines=\"18\" codeLines=\"12\" commentLines=\"0\" blankLines=\"6\" size=\"401\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\hero\\model\\skills\\Slash.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\hero\\model\\skills\\Slash.java\" fullPath=\"backend/src/main/java/com/project/RunGame/hero/model/skills/Slash.java\" fileName=\"Slash.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\hero\\model\\skills\" language=\"Java\" lines=\"37\" codeLines=\"26\" commentLines=\"0\" blankLines=\"11\" size=\"952\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\game\\controller\\GameController.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\game\\controller\\GameController.java\" fullPath=\"backend/src/main/java/com/project/RunGame/game/controller/GameController.java\" fileName=\"GameController.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\game\\controller\" language=\"Java\" lines=\"47\" codeLines=\"37\" commentLines=\"0\" blankLines=\"10\" size=\"1520\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\dto\\CreateHeroesDto.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\dto\\CreateHeroesDto.java\" fullPath=\"backend/src/main/java/com/project/RunGame/dto/CreateHeroesDto.java\" fileName=\"CreateHeroesDto.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\dto\" language=\"Java\" lines=\"20\" codeLines=\"16\" commentLines=\"0\" blankLines=\"4\" size=\"415\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\dto\\MonsterDto.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\dto\\MonsterDto.java\" fullPath=\"backend/src/main/java/com/project/RunGame/dto/MonsterDto.java\" fileName=\"MonsterDto.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\dto\" language=\"Java\" lines=\"33\" codeLines=\"27\" commentLines=\"0\" blankLines=\"6\" size=\"843\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\dto\\MessageDto.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\dto\\MessageDto.java\" fullPath=\"backend/src/main/java/com/project/RunGame/dto/MessageDto.java\" fileName=\"MessageDto.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\dto\" language=\"Java\" lines=\"20\" codeLines=\"15\" commentLines=\"0\" blankLines=\"5\" size=\"323\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\dto\\GameStartRequest.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\dto\\GameStartRequest.java\" fullPath=\"backend/src/main/java/com/project/RunGame/dto/GameStartRequest.java\" fileName=\"GameStartRequest.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\dto\" language=\"Java\" lines=\"23\" codeLines=\"17\" commentLines=\"0\" blankLines=\"6\" size=\"361\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\dto\\DamageMonsterDto.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\dto\\DamageMonsterDto.java\" fullPath=\"backend/src/main/java/com/project/RunGame/dto/DamageMonsterDto.java\" fileName=\"DamageMonsterDto.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\dto\" language=\"Java\" lines=\"31\" codeLines=\"22\" commentLines=\"0\" blankLines=\"9\" size=\"633\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\game\\controller\\websockets\\WebSocketConfig.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\game\\controller\\websockets\\WebSocketConfig.java\" fullPath=\"backend/src/main/java/com/project/RunGame/game/controller/websockets/WebSocketConfig.java\" fileName=\"WebSocketConfig.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\game\\controller\\websockets\" language=\"Java\" lines=\"23\" codeLines=\"20\" commentLines=\"0\" blankLines=\"3\" size=\"899\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\game\\controller\\websockets\\GameWebSocket.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\game\\controller\\websockets\\GameWebSocket.java\" fullPath=\"backend/src/main/java/com/project/RunGame/game/controller/websockets/GameWebSocket.java\" fileName=\"GameWebSocket.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\game\\controller\\websockets\" language=\"Java\" lines=\"170\" codeLines=\"138\" commentLines=\"2\" blankLines=\"30\" size=\"6604\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\game\\controller\\websockets\\eventPublishers\\MovementEventPublisher.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\game\\controller\\websockets\\eventPublishers\\MovementEventPublisher.java\" fullPath=\"backend/src/main/java/com/project/RunGame/game/controller/websockets/eventPublishers/MovementEventPublisher.java\" fileName=\"MovementEventPublisher.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\game\\controller\\websockets\\eventPublishers\" language=\"Java\" lines=\"22\" codeLines=\"16\" commentLines=\"0\" blankLines=\"6\" size=\"795\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\game\\controller\\websockets\\eventPublishers\\MapEventPublisher.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\game\\controller\\websockets\\eventPublishers\\MapEventPublisher.java\" fullPath=\"backend/src/main/java/com/project/RunGame/game/controller/websockets/eventPublishers/MapEventPublisher.java\" fileName=\"MapEventPublisher.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\game\\controller\\websockets\\eventPublishers\" language=\"Java\" lines=\"26\" codeLines=\"18\" commentLines=\"0\" blankLines=\"8\" size=\"754\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\game\\controller\\websockets\\eventPublishers\\InputEventPublisher.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\game\\controller\\websockets\\eventPublishers\\InputEventPublisher.java\" fullPath=\"backend/src/main/java/com/project/RunGame/game/controller/websockets/eventPublishers/InputEventPublisher.java\" fileName=\"InputEventPublisher.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\game\\controller\\websockets\\eventPublishers\" language=\"Java\" lines=\"20\" codeLines=\"15\" commentLines=\"0\" blankLines=\"5\" size=\"712\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\dto\\eventsDto\\MovementEvent.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\dto\\eventsDto\\MovementEvent.java\" fullPath=\"backend/src/main/java/com/project/RunGame/dto/eventsDto/MovementEvent.java\" fileName=\"MovementEvent.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\dto\\eventsDto\" language=\"Java\" lines=\"30\" codeLines=\"24\" commentLines=\"0\" blankLines=\"6\" size=\"761\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\dto\\eventsDto\\MapEvent.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\dto\\eventsDto\\MapEvent.java\" fullPath=\"backend/src/main/java/com/project/RunGame/dto/eventsDto/MapEvent.java\" fileName=\"MapEvent.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\dto\\eventsDto\" language=\"Java\" lines=\"27\" codeLines=\"19\" commentLines=\"0\" blankLines=\"8\" size=\"600\"></file>\n    <file path=\"c:\\Users\\gjobert--rollin\\Documents\\RunGame\\backend\\src\\main\\java\\com\\project\\RunGame\\dto\\eventsDto\\InputEvent.java\" relativePath=\"backend\\src\\main\\java\\com\\project\\RunGame\\dto\\eventsDto\\InputEvent.java\" fullPath=\"backend/src/main/java/com/project/RunGame/dto/eventsDto/InputEvent.java\" fileName=\"InputEvent.java\" directory=\"backend\\src\\main\\java\\com\\project\\RunGame\\dto\\eventsDto\" language=\"Java\" lines=\"29\" codeLines=\"23\" commentLines=\"0\" blankLines=\"6\" size=\"691\"></file>\n  </files>\n</codeCounter>\n';
+        
+        // Parse XML data
+        function parseXML(xmlString) {
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(xmlString, "text/xml");
+            
+            const codeCounter = xmlDoc.querySelector('codeCounter');
+            const summary = {
+                totalFiles: parseInt(codeCounter.querySelector('summary totalFiles').textContent),
+                totalLines: parseInt(codeCounter.querySelector('summary totalLines').textContent)
+            };
+            
+            const languages = Array.from(codeCounter.querySelectorAll('languageStats language')).map(lang => ({
+                name: lang.getAttribute('name'),
+                files: parseInt(lang.getAttribute('files')),
+                lines: parseInt(lang.getAttribute('lines'))
+            }));
+            
+            const files = Array.from(codeCounter.querySelectorAll('files file')).map(file => ({
+                path: file.getAttribute('path'),
+                relativePath: file.getAttribute('relativePath'),
+                fullPath: file.getAttribute('fullPath') || file.getAttribute('relativePath'),
+                language: file.getAttribute('language'),
+                lines: parseInt(file.getAttribute('lines')),
+                codeLines: parseInt(file.getAttribute('codeLines')),
+                commentLines: parseInt(file.getAttribute('commentLines')),
+                blankLines: parseInt(file.getAttribute('blankLines')),
+                size: parseInt(file.getAttribute('size'))
+            }));
+            
+            return { summary, languages, files };
+        }
+        
+        // Format numbers with commas
+        function formatNumber(num) {
+            return num.toLocaleString();
+        }
+        
+        // Populate the report content
+        function populateReport() {
+            try {
+                // Check if we have embedded data
+                if (!embeddedXmlData || embeddedXmlData === '{{XML_DATA_FALLBACK}}') {
+                    throw new Error('No embedded report data found');
+                }
+                
+                const data = parseXML(embeddedXmlData);
+                
+                // Populate summary statistics
+                const summaryDiv = document.getElementById('summary-stats');
+                if (summaryDiv) {
+                    summaryDiv.innerHTML = `
+                        <div class="stat-card">
+                            <h3>Total Files</h3>
+                            <p class="value">${formatNumber(data.summary.totalFiles)}</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Total Lines</h3>
+                            <p class="value">${formatNumber(data.summary.totalLines)}</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Languages</h3>
+                            <p class="value">${data.languages.length}</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Avg Lines/File</h3>
+                            <p class="value">${Math.round(data.summary.totalLines / data.summary.totalFiles)}</p>
+                        </div>
+                    `;
+                }
+                
+                // Populate language statistics
+                const langDiv = document.getElementById('language-stats');
+                if (langDiv) {
+                    langDiv.innerHTML = data.languages.map(lang => `
+                        <div class="language-item">
+                            <div class="language-name">${lang.name}</div>
+                            <div class="language-details">
+                                ${formatNumber(lang.files)} files • ${formatNumber(lang.lines)} lines
+                            </div>
+                        </div>
+                    `).join('');
+                }
+                
+                // Populate files table
+                const tbody = document.getElementById('files-tbody');
+                if (tbody) {
+                    tbody.innerHTML = data.files.map(file => {
+                        const fullPath = file.fullPath || file.relativePath || file.path;
+                        const pathParts = fullPath.split(/[\\/]/);
+                        const fileName = pathParts.pop() || fullPath;
+                        let directory = '';
+                        
+                        // Build directory path with proper separators
+                        if (pathParts.length > 0) {
+                            directory = pathParts.join('/') + '/';
+                        }
+                        
+                        return `
+                        <tr>
+                            <td class="file-name-cell">
+                                <div class="file-name-display">
+                                    <span class="file-name">${fileName}</span>
+                                    ${directory ? `<div class="file-path-toggle">${directory}</div>` : ''}
+                                </div>
+                            </td>
+                            <td><span class="language-badge">${file.language}</span></td>
+                            <td>${formatNumber(file.lines)}</td>
+                            <td>${formatNumber(file.codeLines)}</td>
+                            <td>${formatNumber(file.commentLines)}</td>
+                            <td>${formatNumber(file.blankLines)}</td>
+                            <td>${formatNumber(file.size)}</td>
+                        </tr>
+                        `;
+                    }).join('');
+                }
+                
+                // Add search functionality
+                const searchBox = document.getElementById('file-search');
+                if (searchBox && tbody) {
+                    searchBox.addEventListener('input', function() {
+                        const filter = this.value.toLowerCase();
+                        const rows = tbody.querySelectorAll('tr');
+                        
+                        rows.forEach(row => {
+                            const fileCell = row.querySelector('.file-name-cell');
+                            const filePath = fileCell ? fileCell.textContent.toLowerCase() : '';
+                            row.style.display = filePath.includes(filter) ? '' : 'none';
+                        });
+                    });
+                }
+                
+                // Show report content
+                const loadingIndicator = document.getElementById('loading-indicator');
+                const reportContent = document.getElementById('report-content');
+                
+                if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                if (reportContent) reportContent.classList.remove('hidden');
+                
+                // Restore path display preference
+                restorePathPreference();
+                
+            } catch (error) {
+                debug.error('Error parsing report data:', error);
+                const loadingIndicator = document.getElementById('loading-indicator');
+                const errorMessage = document.getElementById('error-message');
+                const errorText = document.getElementById('error-text');
+                
+                if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                if (errorText) errorText.textContent = 'Error loading report data: ' + error.message;
+                if (errorMessage) errorMessage.classList.remove('hidden');
+            }
+        }
+        
+        // Initialize the report when page loads (for exported HTML files)
+        document.addEventListener('DOMContentLoaded', () => {
+            // Only populate if we have the expected template structure
+            if (document.getElementById('summary-stats')) {
+                populateReport();
+            }
+        });
+    </script>
+</body>
+</html>

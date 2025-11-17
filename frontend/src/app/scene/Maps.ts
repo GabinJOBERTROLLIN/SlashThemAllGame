@@ -3,7 +3,7 @@ import { KeyWebSocketService } from "../controller/webSockets/KeyWebSocketServic
 export class Maps{
     private map = new Map<string,number>();
     private tilesGroup!: Phaser.GameObjects.Group;
-
+    private deleteRadius = 10;
     private tileSize: number;
     private centerX: number;
     private centerY : number;
@@ -45,18 +45,37 @@ export class Maps{
             const posX = x * this.tileSize - playerPosition.x+ this.centerX;
             const posY = y * this.tileSize - playerPosition.y+ this.centerY;
             const tile = this.scene.add.sprite(posX, posY, 'tiles');
-            
+            tile.setData("id", key);
             tile.setFrame(value);
             this.tilesGroup.add(tile);
         });
         this.tilesGroup.setDepth(-100);
     }
+    
     updateMapWithBackendData(playerPosition: { x: number; y: number; },tiles:Record<string,number>){
         const temporaryMap = new Map<string,number>();
         for (const [key, value] of Object.entries(tiles)) {
                 temporaryMap.set(key,value as number);
         }
+        //this.removeFarAwayTIles(playerPosition);
         this.addTile(playerPosition,temporaryMap)
+    }
+
+    removeFarAwayTIles(playerPosition: { x: number; y: number; }){
+        this.tilesGroup.getChildren().forEach((tile: Phaser.GameObjects.GameObject) => {
+        const sprite = tile as Phaser.GameObjects.Sprite; 
+        const tileWorldX = Math.floor((sprite.x ) );
+        const tileWorldY = Math.floor((sprite.y ) );
+        console.log("condition",tileWorldX  - playerPosition.x  / this.tileSize)
+        
+        if (
+            Math.abs(tileWorldX  - playerPosition.x ) / this.tileSize > this.deleteRadius ||
+            Math.abs(tileWorldY - playerPosition.y ) / this.tileSize > this.deleteRadius
+        ) {
+            this.tilesGroup.remove(sprite, true);
+            this.map.delete(tile.getData("id"));
+        }
+    });
     }
     getMap():Map<string,number>{
         return this.map;

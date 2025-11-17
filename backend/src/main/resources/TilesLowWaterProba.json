@@ -1,686 +1,778 @@
 {
-    "tiles": {
-    	"joker":{
-    		"id":-1,
-    		"coord": [
-    		[	
-    			-1,
-    			-1,
-    			-1
-    		],
-    		[	-1,
-    			-1,
-    			-1
-    		],
-    		[	-1,
-    			-1,
-    			-1
-    		]
-    	],
-    	"probabilityIndex":"0"
-    	},
-        "dirt": {
-            "id": 58,
-            "coord": [
-                [
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    0,
-                    0,
-                    0
-                ]
-            ],
-            "probabilityIndex":"100"
-        },
-        "grass": {
-            "id": 73,
-            "coord": [
-                [
-                    1,
-                    1,
-                    1
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ]
-            ],
-            "probabilityIndex":"1400"
-        },
-        "water": {
-            "id": 34,
-            "coord": [
-                [
-                    2,
-                    2,
-                    2
-                ],
-                [
-                    2,
-                    2,
-                    2
-                ],
-                [
-                    2,
-                    2,
-                    2
-                ]
-            ],
-            "probabilityIndex":"100"
-        },
-        "dirtWithLeftgrassBorder": {
-            "id": 57,
-            "coord": [
-                [
-                    1,
-                    0,
-                    0
-                ],
-                [
-                    1,
-                    0,
-                    0
-                ],
-                [
-                    1,
-                    0,
-                    0
-                ]
-            ],
-            "probabilityIndex":"20"
-        },
-        "dirtWithRightgrassBorder": {
-            "id": 59,
-            "coord": [
-                [
-                    0,
-                    0,
-                    1
-                ],
-                [
-                    0,
-                    0,
-                    1
-                ],
-                [
-                    0,
-                    0,
-                    1
-                ]
-            ],
-            "probabilityIndex":"20"
-        },
-        "dirtWithTopgrassBorder": {
-            "id": 37,
-            "coord": [
-                [
-                    1,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    0,
-                    0,
-                    0
-                ]
-            ],
-            "probabilityIndex":"20"
-        },
-        "dirtWithBottomgrassBorder": {
-            "id": 79,
-            "coord": [
-                [
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ]
-            ],
-            "probabilityIndex":"20"
-        },
-        "dirtWithTopRightGrassCorner": {
-            "id": 38,
-            "coord": [
-                [
-                    1,
-                    1,
-                    1
-                ],
-                [
-                    0,
-                    0,
-                    1
-                ],
-                [
-                    0,
-                    0,
-                    1
-                ]
-            ],
-            "probabilityIndex":"20"
-        },
-        "dirtWithTopLeftGrassCorner": {
-            "id": 36,
-            "coord": [
-                [
-                    1,
-                    1,
-                    1
-                ],
-                [
-                    1,
-                    0,
-                    0
-                ],
-                [
-                    1,
-                    0,
-                    0
-                ]
-            ],
-            "probabilityIndex":"20"
-        },
-        "dirtWithBottomRightGrassCorner": {
-            "id": 80,
-            "coord": [
-                [
-                    0,
-                    0,
-                    1
-                ],
-                [
-                    0,
-                    0,
-                    1
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ]
-            ],
-            "probabilityIndex":"20"
-        },
-        "dirtTLandBRgrassPoint": {
-            "id": 81,
-            "coord": [
-                [
-                    1,
-                    0,
-                    0
-                ],
-                [
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    0,
-                    0,
-                    1
-                ]
-            ],
-            "probabilityIndex":"1"
-        },
-        "dirtWithBLandTRGrassPoint": {
-            "id": 82,
-            "coord": [
-                [
-                    0,
-                    0,
-                    1
-                ],
-                [
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    1,
-                    0,
-                    0
-                ]
-            ],
-            "probabilityIndex":"1"
-        },
-        "dirtWithBottomLeftGrassCorner": {
-            "id": 78,
-            "coord": [
-                [
-                    1,
-                    0,
-                    0
-                ],
-                [
-                    1,
-                    0,
-                    0
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ]
-            ],
-            "probabilityIndex":"20"
-        },
-        "dirtWithTopRightgrassPoint": {
-            "id": 60,
-            "coord": [
-                [
-                    0,
-                    0,
-                    1
-                ],
-                [
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    0,
-                    0,
-                    0
-                ]
-            ],
-            "probabilityIndex":"1"
-        },
-        "dirtWithTopLeftgrassPoint": {
-            "id": 61,
-            "coord": [
-                [
-                    1,
-                    0,
-                    0
-                ],
-                [
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    0,
-                    0,
-                    0
-                ]
-            ],
-            "probabilityIndex":"1"
-        },
-        "dirtWithBottomRightGrassPoint": {
-            "id": 39,
-            "coord": [
-                [
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    0,
-                    0,
-                    1
-                ]
-            ],
-            "probabilityIndex":"1"
-        },
-        "dirtWithBottomLeftGrassCPoint": {
-            "id": 40,
-            "coord": [
-                [
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    0,
-                    0,
-                    0
-                ],
-                [
-                    1,
-                    0,
-                    0
-                ]
-            ],
-            "probabilityIndex":"1"
-        }, 
-        "grassRightWater": {
-            "id": 180,
-            "coord": [
-                [
-                    1,
-                    1,
-                    2
-                ],
-                [
-                    1,
-                    1,
-                    2
-                ],
-                [
-                    1,
-                    1,
-                    2
-                ]
-            ],
-            "probabilityIndex":"1"
-        },
-        "TPandBLWater": {
-            "id": 179,
-            "coord": [
-                [
-                    1,
-                    1,
-                    2
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ],
-                [
-                    2,
-                    1,
-                    1
-                ]
-            ],
-            "probabilityIndex":"11"
-        },
-        "GrassTRWater":{
-        "id": 154,
-            "coord": [
-                [
-                    1,
-                    1,
-                    2
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ]
-            ],
-            "probabilityIndex":"1"
-        },
-        "GrassTLWater":{
-                "id": 153,
-            "coord": [
-                [
-                    2,
-                    1,
-                    1
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ]
-            ],
-            "probabilityIndex":"1"
-        },
-        "GrassLefttWater": {
-            "id": 156,
-            "coord": [
-                [
-                    2,
-                    1,
-                    1
-                ],
-                [
-                    2,
-                    1,
-                    1
-                ],
-                [
-                    2,
-                    1,
-                    1
-                ]
-            ],
-            "probabilityIndex":"10"
-        },
-        "TRandBLwater": {
-            "id": 157,
-            "coord": [
-                [
-                    2,
-                    1,
-                    1
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ],
-                [
-                    1,
-                    1,
-                    2
-                ]
-            ],
-            "probabilityIndex":"1"
-        },
-        
-        
-        "topLeftgwateRrestGrasss": {
-            "id": 135,
-            "coord": [
-                [
-                    2,
-                    2,
-                    2
-                ],
-                [
-                    2,
-                    1,
-                    1
-                ],
-                [
-                    2,
-                    1,
-                    1
-                ]
-            ],
-            "probabilityIndex":"10"
-        }
-        ,
-        "topRightgwateRrestGrasss": {
-            "id": 138,
-            "coord": [
-                [
-                    2,
-                    2,
-                    2
-                ],
-                [
-                    1,
-                    1,
-                    2
-                ],
-                [
-                    1,
-                    1,
-                    2
-                ]
-            ],
-            "probabilityIndex":"10"
-        }
-        ,
-        "grassTopWater": {
-            "id": 137,
-            "coord": [
-                [
-                    2,
-                    2,
-                    2
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ]
-            ],
-            "probabilityIndex":"10"
-        }
-        ,
-        "bottomLeftwateRrestGrasss": {
-            "id": 198,
-            "coord": [
-                [
-                    2,
-                    1,
-                    1                
-                ],
-                [
-                    2,
-                    1,
-                    1
-                ],
-                [
-                    2,
-                    2,
-                    2
-                ]
-            ],
-            "probabilityIndex":"10"
-        },
-        "grassBottomWater": {
-            "id": 199,
-            "coord": [
-                [
-                    1,
-                    1,
-                    1
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ],
-                [
-                    2,
-                    2,
-                    2
-                ]
-            ],
-            "probabilityIndex":"10"
-        },
-        "grassBRWater":{
-        "id":175,
-        "coord":[
-	        [
-	        	1,
-	        	1,
-	        	1
-	        ],
-	        [
-	        	1,
-	        	1,
-	        	1
-	        ],
-	        [
-	        	1,
-	        	1,
-	        	2
-	        ]
+  "tiles": {
+    "joker": {
+      "id": -1,
+      "coord": [
+        [
+          -1,
+          -1,
+          -1
         ],
-        "probabilityIndex":"1"
-        
-        },
-        "grassBLWater":{
-        "id":174,
-        "coord":[
-	        [
-	        	1,
-	        	1,
-	        	1
-	        ],
-	        [
-	        	1,
-	        	1,
-	        	1
-	        ],
-	        [
-	        	2,
-	        	1,
-	        	1
-	        ]
+        [
+          -1,
+          -1,
+          -1
         ],
-        "probabilityIndex":"1"
-        
-        },
-        "BottomRightWater": {
-            "id": 201,
-            "coord": [
-                [
-                    1,
-                    1,
-                    2
-                ],
-                [
-                    1,
-                    1,
-                    2
-                ],
-                [
-                    2,
-                    2,
-                    2
-                ]
-            ],
-            "probabilityIndex":"1"
-        }
-        
+        [
+          -1,
+          -1,
+          -1
+        ]
+      ],
+      "probabilityIndex": "0"
     },
-    "subtiles": {
-        "dirt": 0,
-        "grass": 1
+    "dirt": {
+      "id": 58,
+      "coord": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "probabilityIndex": "2000"
+    },
+    "grass": {
+      "id": 73,
+      "coord": [
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1
+        ]
+      ],
+      "probabilityIndex": "28000"
+    },
+    "water": {
+      "id": 34,
+      "coord": [
+        [
+          2,
+          2,
+          2
+        ],
+        [
+          2,
+          2,
+          2
+        ],
+        [
+          2,
+          2,
+          2
+        ]
+      ],
+      "probabilityIndex": "20",
+      "probabilityChange": {
+        "Up": {
+          "199": 10
+        },
+        "Down": {
+          "137": 10
+        },
+        "Left": {
+          "180": 10
+        },
+        "Right": {
+          "156": 10
+        }
+      }
+    },
+    "dirtWithLeftgrassBorder": {
+      "id": 57,
+      "coord": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ]
+      ],
+      "probabilityIndex": "200"
+    },
+    "dirtWithRightgrassBorder": {
+      "id": 59,
+      "coord": [
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ],
+      "probabilityIndex": "200"
+    },
+    "dirtWithTopgrassBorder": {
+      "id": 37,
+      "coord": [
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "probabilityIndex": "300"
+    },
+    "dirtWithBottomgrassBorder": {
+      "id": 79,
+      "coord": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          1,
+          1,
+          1
+        ]
+      ],
+      "probabilityIndex": "300"
+    },
+    "dirtWithTopRightGrassCorner": {
+      "id": 38,
+      "coord": [
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ],
+      "probabilityIndex": "200"
+    },
+    "dirtWithTopLeftGrassCorner": {
+      "id": 36,
+      "coord": [
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ]
+      ],
+      "probabilityIndex": "200"
+    },
+    "dirtWithBottomRightGrassCorner": {
+      "id": 80,
+      "coord": [
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          1,
+          1,
+          1
+        ]
+      ],
+      "probabilityIndex": "200"
+    },
+    "dirtTLandBRgrassPoint": {
+      "id": 81,
+      "coord": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ],
+      "probabilityIndex": "1"
+    },
+    "dirtWithBLandTRGrassPoint": {
+      "id": 82,
+      "coord": [
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ]
+      ],
+      "probabilityIndex": "1"
+    },
+    "dirtWithBottomLeftGrassCorner": {
+      "id": 78,
+      "coord": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          1,
+          1,
+          1
+        ]
+      ],
+      "probabilityIndex": "200"
+    },
+    "dirtWithTopRightGrassPoint": {
+      "id": 60,
+      "coord": [
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "probabilityIndex": "1"
+    },
+    "dirtWithTopLeftGrassPoint": {
+      "id": 61,
+      "coord": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "probabilityIndex": "1"
+    },
+    "dirtWithBottomRightGrassPoint": {
+      "id": 39,
+      "coord": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ],
+      "probabilityIndex": "1"
+    },
+    "dirtWithBottomLeftGrassCPoint": {
+      "id": 40,
+      "coord": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ]
+      ],
+      "probabilityIndex": "1"
+    },
+    "grassRightWater": {
+      "id": 180,
+      "coord": [
+        [
+          1,
+          1,
+          2
+        ],
+        [
+          1,
+          1,
+          2
+        ],
+        [
+          1,
+          1,
+          2
+        ]
+      ],
+      "probabilityIndex": "15",
+      "probabilityChange": {
+        "Up": {},
+        "Down": {},
+        "Left": {
+          "156": 0.1
+        },
+        "Right": {
+          "156": 0.1,
+          "135": 0.1,
+          "198": 0.1
+        }
+      }
+    },
+    "TPandBLWater": {
+      "id": 179,
+      "coord": [
+        [
+          1,
+          1,
+          2
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          2,
+          1,
+          1
+        ]
+      ],
+      "probabilityIndex": "1"
+    },
+    "GrassTRWater": {
+      "id": 154,
+      "coord": [
+        [
+          1,
+          1,
+          2
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1
+        ]
+      ],
+      "probabilityIndex": "1"
+    },
+    "GrassTLWater": {
+      "id": 153,
+      "coord": [
+        [
+          2,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1
+        ]
+      ],
+      "probabilityIndex": "1"
+    },
+    "GrassLefttWater": {
+      "id": 156,
+      "coord": [
+        [
+          2,
+          1,
+          1
+        ],
+        [
+          2,
+          1,
+          1
+        ],
+        [
+          2,
+          1,
+          1
+        ]
+      ],
+      "probabilityIndex": "15",
+      "probabilityChange": {
+        "Up": {},
+        "Down": {},
+        "Left": {},
+        "Right": {}
+      }
+    },
+    "TRandBLwater": {
+      "id": 157,
+      "coord": [
+        [
+          2,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          2
+        ]
+      ],
+      "probabilityIndex": "1"
+    },
+    "topLeftgwateRrestGrasss": {
+      "id": 135,
+      "coord": [
+        [
+          2,
+          2,
+          2
+        ],
+        [
+          2,
+          1,
+          1
+        ],
+        [
+          2,
+          1,
+          1
+        ]
+      ],
+      "probabilityIndex": "5",
+      "probabilityChange": {
+        "Up": {
+          "198": 0,
+          "201": 0,
+          "137": 0
+        },
+        "Down": {},
+        "Left": {
+          "138": 0,
+          "201": 0,
+          "156": 0
+        },
+        "Right": {}
+      }
+    },
+    "topRightgwateRrestGrasss": {
+      "id": 138,
+      "coord": [
+        [
+          2,
+          2,
+          2
+        ],
+        [
+          1,
+          1,
+          2
+        ],
+        [
+          1,
+          1,
+          2
+        ]
+      ],
+      "probabilityIndex": "5",
+      "probabilityChange": {
+        "Up": {
+          "198": 0,
+          "201": 0,
+          "199": 0
+        },
+        "Down": {},
+        "Left": {},
+        "Right": {
+          "135": 0,
+          "198": 0,
+          "156": 0
+        }
+      }
+    },
+    "grassTopWater": {
+      "id": 137,
+      "coord": [
+        [
+          2,
+          2,
+          2
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1
+        ]
+      ],
+      "probabilityIndex": "10",
+      "probabilityChange": {
+        "Up": {},
+        "Down": {},
+        "Left": {},
+        "Right": {}
+      }
+    },
+    "bottomLeftwateRrestGrasss": {
+      "id": 198,
+      "coord": [
+        [
+          2,
+          1,
+          1
+        ],
+        [
+          2,
+          1,
+          1
+        ],
+        [
+          2,
+          2,
+          2
+        ]
+      ],
+      "probabilityIndex": "5",
+      "probabilityChange": {
+        "Up": {},
+        "Down": {
+          "138": 0,
+          "135": 0,
+          "137": 0
+        },
+        "Left": {
+          "138": 0,
+          "201": 0,
+          "180": 0
+        },
+        "Right": {}
+      }
+    },
+    "grassBottomWater": {
+      "id": 199,
+      "coord": [
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          2,
+          2,
+          2
+        ]
+      ],
+      "probabilityIndex": "10",
+      "probabilityChange": {
+        "Up": {},
+        "Down": {},
+        "Left": {},
+        "Right": {}
+      }
+    },
+    "grassBRWater": {
+      "id": 175,
+      "coord": [
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          2
+        ]
+      ],
+      "probabilityIndex": "1"
+    },
+    "grassBLWater": {
+      "id": 174,
+      "coord": [
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          2,
+          1,
+          1
+        ]
+      ],
+      "probabilityIndex": "1"
+    },
+    "BottomRightWater": {
+      "id": 201,
+      "coord": [
+        [
+          1,
+          1,
+          2
+        ],
+        [
+          1,
+          1,
+          2
+        ],
+        [
+          2,
+          2,
+          2
+        ]
+      ],
+      "probabilityIndex": "5",
+      "probabilityChange": {
+        "Up": {},
+        "Down": {
+          "135": 0,
+          "138": 0
+        },
+        "Left": {},
+        "Right": {
+          "135": 0,
+          "198": 0
+        }
+      }
     }
+  },
+  "subtiles": {
+    "dirt": 0,
+    "grass": 1
+  }
 }

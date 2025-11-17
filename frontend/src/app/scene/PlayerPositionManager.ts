@@ -78,7 +78,7 @@ export class PlayerPositionManager{
 
     if (!existingSprite) {
       const sprite = this.scene.add.sprite(screenX, screenY, "John-idle");
-      sprite.setData("id", id);
+      
       sprite.setDepth(99);
       this.playersGroup.add(sprite);
     } else {

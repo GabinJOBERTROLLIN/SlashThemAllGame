@@ -36,7 +36,7 @@ export class Monsters{
     }
 
     moveMonsters(monsterData : Record< string , { x: number, y:number}>){
-        console.log(monsterData)
+        
         const children = this.monsterGroup.getChildren();
         for (let i = 0; i < children.length; i++) {
             const sprite = children[i] as Phaser.GameObjects.Sprite;
