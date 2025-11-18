@@ -34,4 +34,9 @@ public class HeroController {
     public void broadcastHeroes(@RequestParam String roomId) {
         this.userSessionHeroes.sendHeroesCoordinates(roomId);
     }
+
+    @DeleteMapping("hero")
+    public boolean deleteHero(@RequestParam String userId){
+        return this.userSessionHeroes.deleteHero(userId);
+    }
 }

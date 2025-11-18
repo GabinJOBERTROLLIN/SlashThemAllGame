@@ -30,7 +30,7 @@ public class OrderBuilderStrategy extends AbstractMapBuilderStrategy {
                 Map<DirectionEnum, Integer> neighbours = getNeighbours(coord);
 
                 Tile newTile = this.tileFinder.findTile(neighbours);
-                //this.map.put(coord, newTile.getId());
+                this.map.put(coord, newTile.getId());
 
             }
         }

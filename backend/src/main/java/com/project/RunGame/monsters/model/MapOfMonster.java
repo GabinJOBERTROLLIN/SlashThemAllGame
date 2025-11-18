@@ -215,13 +215,15 @@ public class MapOfMonster {
         Coordinates coordMonsterToMove = Coordinates.add(coordMonsterToMoveBasis, coordMonsterToMoveIncrement);
         for (Map.Entry<String, MonsterInMap> entry : this.monsterMap.entrySet()) {
             Coordinates coordMonsterIteratedBasis = entry.getValue().getCoord();
-            Coordinates coordMonsterIteratedIncrement = entry.getValue().getMovement(chosenHeroCoordinates);
-            Coordinates coordMonsterIterated = Coordinates.add(coordMonsterIteratedBasis, coordMonsterIteratedIncrement);
+            //Coordinates coordMonsterIteratedIncrement = entry.getValue().getMovement(chosenHeroCoordinates);
+//Coordinates coordMonsterIterated = Coordinates.add(coordMonsterIteratedBasis, coordMonsterIteratedIncrement);
+            Coordinates coordMonsterIterated =coordMonsterIteratedBasis;
             boolean coordMonsterX = Math.abs(coordMonsterIterated.getX() - coordMonsterToMove.getX()) < 1.5;
             boolean coordMonsterY = Math.abs(coordMonsterIterated.getY() - coordMonsterToMove.getY()) < 1.5;
             boolean coordMonster = coordMonsterX && coordMonsterY;
 
             if (coordMonster && !monster.equals(entry.getValue())) {
+
                 return false;
             }
         }

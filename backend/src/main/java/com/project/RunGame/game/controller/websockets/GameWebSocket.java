@@ -115,13 +115,29 @@ public class GameWebSocket extends TextWebSocketHandler {
         userSessions.put(userId, session);
     }
 
+    private String getUserIdFromSession(WebSocketSession session){
+        for (Map.Entry<String, WebSocketSession> entry : this.userSessions.entrySet()){
+            if (entry.getValue().equals(session)){
+                return entry.getKey();
+            }
+        }
+        return null;
+    }
+    private String getRoomFromUserId(String userId){
+        RestTemplate restTemplate = new RestTemplate();
+        String url = "http://localhost:8081/room?userId=" + userId;
+        return restTemplate.getForObject(url, String.class);
+    }
     @Override
     public void afterConnectionClosed(WebSocketSession session, org.springframework.web.socket.CloseStatus status) {
         System.out.println("webSocket closed");
+        String userId = this.getUserIdFromSession(session);
+        String roomId = this.getRoomFromUserId(userId);
+        this.logUserOut(userId,roomId);
 
     }
 
-    //calling this function from other functions
+
     public void sendMessageToRoom(String roomId, String type, Object object) {
         RestTemplate restTemplate = new RestTemplate();
         String url = "http://localhost:8081/users/users?roomId={roomId}";
@@ -132,12 +148,27 @@ public class GameWebSocket extends TextWebSocketHandler {
         Set<String> userIds = restTemplate.getForObject(url, Set.class, params);
 
         for (String userId : userIds) {
-            this.sendMessageToUser(userId, type, object);
+            this.sendMessageToUser(userId, type, object,roomId);
         }
 
     }
+    private boolean tellRoomUserQuitted(String userId, String roomId) {
+        RestTemplate restTemplate = new RestTemplate();
+        String url = "http://localhost:8081/users/user?userId=" + userId;
+        restTemplate.delete(url);
+        return true;
+    }
 
-    public void sendMessageToUser(String userId, String type, Object object) {
+    private void broadcastUserSomeoneQuitted(String userId, String roomId){
+        sendMessageToRoom(roomId, "death", userId);
+    }
+
+    private boolean logUserOut(String userId, String roomId){
+        this.userSessions.remove(userId);
+        this.broadcastUserSomeoneQuitted(userId,roomId);
+        return this.tellRoomUserQuitted(userId,roomId);
+     }
+    public void sendMessageToUser(String userId, String type, Object object,String roomId) {
         WebSocketSession session = this.userSessions.get(userId);
         String json = "";
         MessageDto messageDto = new MessageDto(type, object);
@@ -147,12 +178,16 @@ public class GameWebSocket extends TextWebSocketHandler {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
+
         try {
             synchronized (session) {
                 session.sendMessage(new TextMessage(json));
             }
 
-        } catch (Exception e) {
+        } catch(IllegalStateException e){
+            this.logUserOut(userId,roomId);
+        }
+        catch (Exception e) {
             //e.printStackTrace();
             System.out.println("error");
         }

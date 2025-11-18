@@ -114,4 +114,12 @@ public class UserSessionHeroes {
     }
 
 
+    public boolean deleteHero(String userId) {
+        if (this.userHeroes.containsKey(userId)){
+            this.userHeroes.remove(userId);
+            return true;
+        }else{
+            return false;
+        }
+    }
 }

@@ -1,6 +1,7 @@
 package com.project.RunGame.user.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -50,5 +51,20 @@ public class RoomSession {
         Set<String> users = getUsersFromRoom(roomId);
         return users.isEmpty();
     }
+    public boolean deleteHero(String userId){
+        RestTemplate restTemplate = new RestTemplate();
+        String url = "http://localhost:8081/hero/hero?userId=" + userId;
+        restTemplate.delete(url);
+        return true;
+    }
+    public boolean deleteUser(String userId) {
+        if (this.userRoom.containsKey(userId)){
+            this.userRoom.remove(userId);
+            return this.deleteHero(userId);
+        }
+        else{
+            return false;
+        }
 
+    }
 }

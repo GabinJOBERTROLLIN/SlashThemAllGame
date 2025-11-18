@@ -1,10 +1,7 @@
 package com.project.RunGame.user.controller;
 
 import com.project.RunGame.user.service.RoomSession;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Set;
 
@@ -20,6 +17,10 @@ public class UserController {
     @GetMapping("users")
     public Set<String> getUsersFromRoomId(@RequestParam String roomId) {
         return this.roomSession.getUsersFromRoom(roomId);
+    }
+    @DeleteMapping("user")
+    public boolean deleteUserFromUserId(@RequestParam String userId) {
+        return this.roomSession.deleteUser(userId);
     }
 
     @GetMapping("room")

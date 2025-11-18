@@ -44,7 +44,21 @@ export class PlayerPositionManager{
                 }
                 this.movePlayers();
             }
+            else if (parsedMessage['type'] =="death"){
+                console.log("death message",parsedMessage);
+                this.displayPlayerDeath(parsedMessage['data']);
+            }
         });
+    }
+
+    displayPlayerDeath(playerId: string) {
+        const children = this.playersGroup.getChildren();
+        const existingSprite = children.find(
+      (child) => (child as Phaser.GameObjects.Sprite).getData("id") === playerId
+    ) as Phaser.GameObjects.Sprite | undefined;
+        if (existingSprite) {
+            existingSprite.destroy();
+        }
     }
     moveSpriteY(speed: number) {
         this.playersGroup.incY(speed);
@@ -57,17 +71,15 @@ export class PlayerPositionManager{
 
   const children = this.playersGroup.getChildren();
 
-  // The local player's world position
   const playerWorldX = this.playerPosition.x;
   const playerWorldY = this.playerPosition.y;
 
-  // Screen center (or the point where your player sprite stays fixed)
   const centerX = this.scene.scale.width / 2;
   const centerY = this.scene.scale.height / 2;
 
   for (const [id, coord] of this.playersPosition.entries()) {
     if (id === localStorage.getItem("userId")) continue;
-
+    console.log(id)
     const existingSprite = children.find(
       (child) => (child as Phaser.GameObjects.Sprite).getData("id") === id
     ) as Phaser.GameObjects.Sprite | undefined;
@@ -78,7 +90,7 @@ export class PlayerPositionManager{
 
     if (!existingSprite) {
       const sprite = this.scene.add.sprite(screenX, screenY, "John-idle");
-      
+      sprite.setData("id", id);
       sprite.setDepth(99);
       this.playersGroup.add(sprite);
     } else {

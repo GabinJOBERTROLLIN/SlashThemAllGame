@@ -33,10 +33,11 @@ public class RoomSessionMapService {
     }
 
     public void updateUserMap(String roomId, Set<Coordinates> coordinates) {
-        Map<Coordinates, Integer> map = mapService.updateMap(coordinates);
-        ;
-        userMaps.put(roomId, map);
-        this.sendMap(roomId, map);
+        Map<Coordinates, Integer> existingMap = userMaps.getOrDefault(roomId, new HashMap<>());
+        Map<Coordinates, Integer> updatedMap = mapService.updateMap(coordinates);
+        existingMap.putAll(updatedMap);
+        userMaps.put(roomId, existingMap);
+        this.sendMap(roomId, updatedMap);
     }
 
     public void sendMap(String roomId, Map<Coordinates, Integer> map) {

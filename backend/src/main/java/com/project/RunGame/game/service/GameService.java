@@ -42,7 +42,17 @@ public class GameService {
 
         restTemplate.postForLocation(url, null, params);
     }
+    public boolean doesRoomExist(String roomId){
+        RestTemplate restTemplate = new RestTemplate();
+        String url = "http://localhost:8081/users/users?roomId={roomId}";
 
+        Map<String, String> params = new HashMap<>();
+        params.put("roomId", roomId);
+
+        Set<String> userIds = restTemplate.getForObject(url, Set.class, params);
+        return !userIds.isEmpty();
+
+    }
     public void readyForUser(String userId, String roomId) {
         RestTemplate restTemplate = new RestTemplate();
         String url = "http://localhost:8081/hero/init";

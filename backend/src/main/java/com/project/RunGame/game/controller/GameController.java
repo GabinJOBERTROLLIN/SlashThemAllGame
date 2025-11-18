@@ -26,8 +26,8 @@ public class GameController {
     @PostMapping("/ready")
     public void readyForMap(@RequestParam String roomId, String userId) {
         System.out.println("ready received userId" + userId);
-        this.service.readyForMap(roomId);
         this.service.readyForUser(userId, roomId);
+        this.service.readyForMap(roomId);
         this.service.readyForMonsters(roomId);
         this.service.startGameClock(roomId);
 

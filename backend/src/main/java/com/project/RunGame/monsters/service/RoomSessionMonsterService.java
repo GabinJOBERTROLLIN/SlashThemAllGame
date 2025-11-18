@@ -26,10 +26,11 @@ public class RoomSessionMonsterService {
         if (!this.roomMonsters.containsKey(roomId)) {
             MapOfMonster monsters = new MapOfMonster();
             this.roomMonsters.put(roomId, monsters);
-            this.sendMonsters(roomId, monsters.getMonsterMap());
         } else {
             System.out.println("room Monsters already initialized");
         }
+        MapOfMonster monsters = this.roomMonsters.get(roomId);
+        this.sendMonsters(roomId, monsters.getMonsterMap());
     }
 
     public void damageMonster(String roomId, int damageAmount, List<Coordinates> hitmap) {

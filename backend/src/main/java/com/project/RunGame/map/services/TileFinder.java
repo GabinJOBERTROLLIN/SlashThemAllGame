@@ -21,7 +21,6 @@ public class TileFinder {
     }
 
     public Tile findTileRiverBank(DirectionEnum direction, Map<DirectionEnum, Integer> tilesNeighbour) {
-        System.out.println("direction " + direction);
         Tile tile;
         if (direction.equals(DirectionEnum.Up)) {
             tile = this.tilesMap.get(137);

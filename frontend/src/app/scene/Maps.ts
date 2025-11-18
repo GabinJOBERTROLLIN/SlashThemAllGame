@@ -17,14 +17,18 @@ export class Maps{
         this.tilesGroup = this.scene.add.group();
         this.subscribeWs(ws,getPlayerPosition)
     }
+
     subscribeWs(ws:KeyWebSocketService, getPlayerPosition: () => { x: number, y: number }){
         ws.message.subscribe(message => {
             const parsedMessage: any = JSON.parse(message);
-
+            
             if(parsedMessage['type']=="map"){
                 const tiles = parsedMessage['data'] as Record<string,number>;
+                console.log(parsedMessage);
                 const position = getPlayerPosition()
                 this.updateMapWithBackendData(position,tiles);
+                console.log("map message",this.map);
+
             }
         });
     }
