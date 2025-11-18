@@ -100,16 +100,17 @@ public class RoomSessionMonsterService {
         this.sendMonsters(roomId, monsterMap);
     }
 
-    public void moveMonsters(String roomId) {
-        MapOfMonster monsters = this.roomMonsters.get(roomId);
-        Map<String, Coordinates> heroCoordinates = this.getHeroCoordinates(roomId);
-        Map<String, Coordinates> newCoords = monsters.moveMonsters(heroCoordinates);
-        this.sendMoveMonsters(roomId, newCoords);
-    }
-
-    private Map<String, Coordinates> getHeroCoordinates(String roomId) {
-        RestTemplate restTemplate = new RestTemplate();
-        String url = "http://localhost:8081/hero/coordinates?roomId={roomId}";
+	public void moveMonsters(String roomId) {
+		MapOfMonster monsters = this.roomMonsters.get(roomId);
+		Map<String,Coordinates> heroCoordinates = this.getHeroCoordinates(roomId);
+		Map<String, Coordinates> newCoords = monsters.moveMonsters(heroCoordinates);
+		this.sendMoveMonsters(roomId, newCoords);
+	}
+	
+	private Map<String,Coordinates> getHeroCoordinates(String roomId){
+		RestTemplate restTemplate = new RestTemplate();
+		 String backendUrl = System.getenv("BACKEND_URL");
+		 String url = backendUrl + "/hero/coordinates?roomId={roomId}";
 
         Map<String, String> params = new HashMap<>();
         params.put("roomId", roomId);

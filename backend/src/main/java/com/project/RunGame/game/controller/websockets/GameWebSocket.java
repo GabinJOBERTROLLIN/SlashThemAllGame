@@ -122,9 +122,10 @@ public class GameWebSocket extends TextWebSocketHandler {
     }
 
     //calling this function from other functions
-    public void sendMessageToRoom(String roomId, String type, Object object) {
-        RestTemplate restTemplate = new RestTemplate();
-        String url = "http://localhost:8081/users/users?roomId={roomId}";
+    public void sendMessageToRoom(String roomId,String type, Object object) {
+    	RestTemplate restTemplate = new RestTemplate();
+		 String backendUrl = System.getenv("BACKEND_URL");
+		 String url = backendUrl + "/users/users?roomId={roomId}";
 
         Map<String, String> params = new HashMap<>();
         params.put("roomId", roomId);

@@ -1,11 +1,13 @@
 import { Injectable } from "@angular/core";
 import { Observable, Subject } from "rxjs";
 
+import { environment } from '../../../../environment';
+
 @Injectable({
   providedIn: 'root'
 })
 export class WebSocketService {
-  private readonly URL = 'ws://localhost:8081/gameWs';
+  private readonly URL = environment.webSocketUrl;
   private webSocketSubject!: WebSocket;
   private messageObserver = new Subject<string>();
   public message: Observable<string> ;
