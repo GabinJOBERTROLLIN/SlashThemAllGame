@@ -6,11 +6,10 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
-  selector: 'app-room',
-  standalone: true,
-  imports: [GameComponent,CommonModule],
-  templateUrl: './room.component.html',
-  styleUrl: './room.component.css'
+    selector: 'app-room',
+    imports: [GameComponent, CommonModule],
+    templateUrl: './room.component.html',
+    styleUrl: './room.component.css'
 })
 export class RoomComponent {
   private roomId!: string;

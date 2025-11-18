@@ -7,11 +7,10 @@ import { HttpClient } from '@angular/common/http';
 import * as uuid from 'uuid';
 
 @Component({
-  selector: 'app-home',
-  standalone: true,
-  imports: [CommonModule,RoomComponent,FormsModule],
-  templateUrl: './home.component.html',
-  styleUrl: './home.component.css'
+    selector: 'app-home',
+    imports: [CommonModule, RoomComponent, FormsModule],
+    templateUrl: './home.component.html',
+    styleUrl: './home.component.css'
 })
 export class HomeComponent {
   inputId:String="";

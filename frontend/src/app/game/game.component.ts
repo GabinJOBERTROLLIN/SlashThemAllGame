@@ -6,11 +6,10 @@ import { KeyWebSocketService } from '../controller/webSockets/KeyWebSocketServic
 import { GameController } from '../controller/GameController';
 
 @Component({
-  selector: 'app-game',
-  standalone: true,
-  imports: [],
-  templateUrl: './game.component.html',
-  styleUrl: './game.component.css'
+    selector: 'app-game',
+    imports: [],
+    templateUrl: './game.component.html',
+    styleUrl: './game.component.css'
 })
 export class GameComponent implements OnInit,OnDestroy {
   phaserGame?: Phaser.Game;
