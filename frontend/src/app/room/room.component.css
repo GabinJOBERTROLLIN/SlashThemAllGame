@@ -1,0 +1,9 @@
+#gameContainer {
+    width: 100%;
+    height: 80vh;
+}
+app-game {
+    display: block;
+    width: 100%;
+    height: 100%;
+}

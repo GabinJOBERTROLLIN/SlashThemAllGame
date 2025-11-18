@@ -23,12 +23,12 @@ public class MonstersController {
     }
 
     @PostMapping("/damage")
-    public void damageMonster(@RequestBody DamageMonsterDto monsterDto) {
+    public int damageMonster(@RequestBody DamageMonsterDto monsterDto) {
         String roomId = monsterDto.getRoomId();
         int damageAmount = monsterDto.getDamageAmount();
         List<Coordinates> hitmap = monsterDto.getHitmap();
         System.out.println("try to damage");
-        this.roomSesisonMonsterService.damageMonster(roomId, damageAmount, hitmap);
+        return this.roomSesisonMonsterService.damageMonster(roomId, damageAmount, hitmap);
     }
 
     @PostMapping("/generate")

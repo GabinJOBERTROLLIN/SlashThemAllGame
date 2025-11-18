@@ -69,7 +69,11 @@ public class UserSessionHeroes {
 		this.move(userId,newCoord);
 		return true;
 	};
-	
+
+    private void giveUserKillCount(String userId,int killCount){
+        this.gameWebSocket.sendMessageToUser(userId,"kills",killCount);
+    }
+
 	public boolean dealDamages(String userId,List<Coordinates> hitmap) {
 		RestTemplate restTemplate = new RestTemplate();
 		String backendUrl = System.getenv("BACKEND_URL");
@@ -78,7 +82,10 @@ public class UserSessionHeroes {
 		String roomId = this.roomSession.getRoomFromUser(userId);
 		DamageMonsterDto damageMonsterDto = new DamageMonsterDto(roomId,1,hitmap);
 		HttpEntity<DamageMonsterDto> entity = new HttpEntity<>(damageMonsterDto);
-		restTemplate.postForLocation(url,entity);
+		int numberOfEnemieKilled = restTemplate.postForObject(url,entity,int.class);
+        if (numberOfEnemieKilled > 0){
+            this.giveUserKillCount(userId,numberOfEnemieKilled);
+        }
 		return true;
 	}
 	

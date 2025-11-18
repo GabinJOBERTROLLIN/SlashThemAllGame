@@ -33,7 +33,7 @@ public class RoomSessionMonsterService {
         this.sendMonsters(roomId, monsters.getMonsterMap());
     }
 
-    public void damageMonster(String roomId, int damageAmount, List<Coordinates> hitmap) {
+    public int damageMonster(String roomId, int damageAmount, List<Coordinates> hitmap) {
         MonsterDamageResult updatedMonsters = roomMonsters.get(roomId).damageMonsters(damageAmount, hitmap);
         Map<String, MonsterInMap> injuredMonsters = updatedMonsters.getInjuredMonsters();
         Map<String, MonsterInMap> killedMonsters = updatedMonsters.getKilledMonsters();
@@ -43,6 +43,7 @@ public class RoomSessionMonsterService {
         if (!killedMonsters.isEmpty()) {
             this.sendMonsters(roomId, killedMonsters, MonsterStatusEnum.Dead);
         }
+        return killedMonsters.size();
     }
 
     public void sendMonsters(String roomId, Map<String, MonsterInMap> monsters) {

@@ -98,7 +98,9 @@ public class GameWebSocket extends TextWebSocketHandler {
             e.printStackTrace();
         }
     }
+    public void sendUserNumberOfMonstersKilled(){
 
+    }
     private void publishPositionEvent(JsonNode dataJson, String roomId) {
         double x = dataJson.get("x").asDouble();
         double y = dataJson.get("y").asDouble();
@@ -133,7 +135,7 @@ public class GameWebSocket extends TextWebSocketHandler {
         System.out.println("webSocket closed");
         String userId = this.getUserIdFromSession(session);
         String roomId = this.getRoomFromUserId(userId);
-        this.logUserOut(userId,roomId);
+        this.logUserOut(userId);
 
     }
 
@@ -149,7 +151,7 @@ public class GameWebSocket extends TextWebSocketHandler {
         Set<String> userIds = restTemplate.getForObject(url, Set.class, params);
 
         for (String userId : userIds) {
-            this.sendMessageToUser(userId, type, object,roomId);
+            this.sendMessageToUser(userId, type, object);
         }
 
     }
@@ -164,12 +166,13 @@ public class GameWebSocket extends TextWebSocketHandler {
         sendMessageToRoom(roomId, "death", userId);
     }
 
-    private boolean logUserOut(String userId, String roomId){
+    private boolean logUserOut(String userId){
         this.userSessions.remove(userId);
+        String roomId = this.getRoomFromUserId(userId);
         this.broadcastUserSomeoneQuitted(userId,roomId);
         return this.tellRoomUserQuitted(userId,roomId);
      }
-    public void sendMessageToUser(String userId, String type, Object object,String roomId) {
+    public void sendMessageToUser(String userId, String type, Object object) {
         WebSocketSession session = this.userSessions.get(userId);
         String json = "";
         MessageDto messageDto = new MessageDto(type, object);
@@ -186,7 +189,7 @@ public class GameWebSocket extends TextWebSocketHandler {
             }
 
         } catch(IllegalStateException e){
-            this.logUserOut(userId,roomId);
+            this.logUserOut(userId);
         }
         catch (Exception e) {
             //e.printStackTrace();

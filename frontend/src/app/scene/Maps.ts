@@ -24,10 +24,10 @@ export class Maps{
             
             if(parsedMessage['type']=="map"){
                 const tiles = parsedMessage['data'] as Record<string,number>;
-                console.log(parsedMessage);
+                
                 const position = getPlayerPosition()
                 this.updateMapWithBackendData(position,tiles);
-                console.log("map message",this.map);
+                
 
             }
         });

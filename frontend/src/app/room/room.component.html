@@ -8,7 +8,10 @@
   {{ showGame ? 'Stop game' : 'New Game' }}
 </button>
 
-<app-game *ngIf="gameStarted"></app-game>
+<div id = "gameContainer">
+  <app-game *ngIf="gameStarted"></app-game>
+</div>
+
 
 
 

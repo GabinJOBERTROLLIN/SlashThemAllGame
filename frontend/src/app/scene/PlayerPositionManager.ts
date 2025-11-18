@@ -79,7 +79,6 @@ export class PlayerPositionManager{
 
   for (const [id, coord] of this.playersPosition.entries()) {
     if (id === localStorage.getItem("userId")) continue;
-    console.log(id)
     const existingSprite = children.find(
       (child) => (child as Phaser.GameObjects.Sprite).getData("id") === id
     ) as Phaser.GameObjects.Sprite | undefined;
