@@ -1,16 +1,33 @@
+version: "3.9"
+
 services:
-  main-backend:
+  backend:
     build:
       context: ./backend
       dockerfile: dockerfile
+    container_name: backend
     ports:
-      - "8081:8081"
-  
+      - "8080:8080"
+    environment:
+      - BACKEND_URL=http://backend:8080
+    networks:
+      - app-network
+
   frontend:
     build:
       context: ./frontend
       dockerfile: dockerfile
+      target: prod # dev or prod
+    container_name: frontend
     ports:
-      - "4200:4200"
+      # - "4200:4200" # dev
+      - "4200:80"   # prod
     depends_on:
-      - main-backend
+      - backend
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+

@@ -18,80 +18,82 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class UserSessionHeroes {
-    private final Map<String, HeroInMap> userHeroes = new ConcurrentHashMap<>();
-    private final RoomSession roomSession;
-    private final GameWebSocket gameWebSocket;
+	private final Map<String, HeroInMap> userHeroes = new ConcurrentHashMap<>();
+	private final RoomSession roomSession;
+	private final GameWebSocket gameWebSocket;
+	
+	UserSessionHeroes(RoomSession roomSession,GameWebSocket gameWebSocket ){
+		this.roomSession = roomSession;
+		this.gameWebSocket = gameWebSocket;
+	}
+	
+	public void initHeroes(String userId, String heroName) {
+		HeroInMap heroInMap = new HeroInMap(heroName);
+		if (heroInMap.isHeroDefined()) {
+			userHeroes.put(userId,heroInMap);
+		}
+		
+	}
+	
+	public boolean useSkill(String userId, String skillName, DirectionEnum direction) {
+		HeroInMap heroInMap = userHeroes.get(userId);
+		//if (this.handleMovements(userId,skillName,direction)) {
+		//	return true;
+		//}
+		List<Coordinates> hitmap = heroInMap.useSkill(skillName, direction);
+		if (!hitmap.isEmpty()) {
+			return this.dealDamages(userId,hitmap);
+		}
+		return false;
+	}
+	
+	public boolean handleMovements(String userId, String skillName, DirectionEnum direction) {
+		Coordinates coord = userHeroes.get(userId).getCoord();
+		Coordinates newCoord = new Coordinates(coord.getX(),coord.getY());
+		float speed = 2f/16;
+		if (skillName.equals("z")){
+			newCoord = new Coordinates(coord.getX(),coord.getY()+speed);
+		}
+		else if (skillName.equals("q")){
+			newCoord = new Coordinates(coord.getX()-speed,coord.getY());
+		}
+		else if (skillName.equals("s")){
+			newCoord = new Coordinates(coord.getX(),coord.getY()-speed);
+		}
+		else if (skillName.equals("d")){
+			newCoord = new Coordinates(coord.getX()+speed,coord.getY());
+		}
+		else {
+			return false;
+		}
+		this.move(userId,newCoord);
+		return true;
+	};
+	
+	public boolean dealDamages(String userId,List<Coordinates> hitmap) {
+		RestTemplate restTemplate = new RestTemplate();
+		String backendUrl = System.getenv("BACKEND_URL");
+		 String url = backendUrl + "/monsters/damage";
+		
+		String roomId = this.roomSession.getRoomFromUser(userId);
+		DamageMonsterDto damageMonsterDto = new DamageMonsterDto(roomId,1,hitmap);
+		HttpEntity<DamageMonsterDto> entity = new HttpEntity<>(damageMonsterDto);
+		restTemplate.postForLocation(url,entity);
+		return true;
+	}
+	
+	public void move(String userId, Coordinates coord) {
+		HeroInMap heroInMap = userHeroes.get(userId);
+		heroInMap.setCoordinates(coord);
+	}
 
-    UserSessionHeroes(RoomSession roomSession, GameWebSocket gameWebSocket) {
-        this.roomSession = roomSession;
-        this.gameWebSocket = gameWebSocket;
-    }
-
-    public void initHeroes(String userId, String heroName) {
-        HeroInMap heroInMap = new HeroInMap(heroName);
-        if (heroInMap.isHeroDefined()) {
-            userHeroes.put(userId, heroInMap);
-        }
-
-    }
-
-    public boolean useSkill(String userId, String skillName, DirectionEnum direction) {
-        HeroInMap heroInMap = userHeroes.get(userId);
-        //if (this.handleMovements(userId,skillName,direction)) {
-        //	return true;
-        //}
-        List<Coordinates> hitmap = heroInMap.useSkill(skillName, direction);
-        if (!hitmap.isEmpty()) {
-            return this.dealDamages(userId, hitmap);
-        }
-        return false;
-    }
-
-    public boolean handleMovements(String userId, String skillName, DirectionEnum direction) {
-        Coordinates coord = userHeroes.get(userId).getCoord();
-        Coordinates newCoord = new Coordinates(coord.getX(), coord.getY());
-        float speed = 2f / 16;
-        if (skillName.equals("z")) {
-            newCoord = new Coordinates(coord.getX(), coord.getY() + speed);
-        } else if (skillName.equals("q")) {
-            newCoord = new Coordinates(coord.getX() - speed, coord.getY());
-        } else if (skillName.equals("s")) {
-            newCoord = new Coordinates(coord.getX(), coord.getY() - speed);
-        } else if (skillName.equals("d")) {
-            newCoord = new Coordinates(coord.getX() + speed, coord.getY());
-        } else {
-            return false;
-        }
-        this.move(userId, newCoord);
-        return true;
-    }
-
-    ;
-
-    public boolean dealDamages(String userId, List<Coordinates> hitmap) {
-        RestTemplate restTemplate = new RestTemplate();
-        String url = "http://localhost:8081/monsters/damage";
-
-        String roomId = this.roomSession.getRoomFromUser(userId);
-        DamageMonsterDto damageMonsterDto = new DamageMonsterDto(roomId, 1, hitmap);
-        HttpEntity<DamageMonsterDto> entity = new HttpEntity<>(damageMonsterDto);
-        restTemplate.postForLocation(url, entity);
-        return true;
-    }
-
-    public void move(String userId, Coordinates coord) {
-        HeroInMap heroInMap = userHeroes.get(userId);
-        heroInMap.setCoordinates(coord);
-    }
-
-    public void moveInput(String userId, Coordinates coord, DirectionEnum skillDIrection) {
-        this.move(userId, coord);
-
-    }
-
+	public void moveInput(String userId, Coordinates coord, DirectionEnum skillDIrection) {
+		this.move(userId,coord);
+		
+	}
     public Map<String, Coordinates> getHeroesCoordinates(String roomId) {
         RestTemplate restTemplate = new RestTemplate();
-        String url = "http://localhost:8081/users/users?roomId={roomId}";
+        String url = "http://localhost:8080/users/users?roomId={roomId}";
 
         Map<String, String> params = new HashMap<>();
         params.put("roomId", roomId);

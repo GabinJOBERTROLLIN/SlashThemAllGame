@@ -35,7 +35,7 @@ public class GameService {
 
     public void readyForMonsters(String userId) {
         RestTemplate restTemplate = new RestTemplate();
-        String url = "http://localhost:8081/monsters/init?roomId={roomId}";
+        String url = "http://localhost:8080/monsters/init?roomId={roomId}";
 
         Map<String, String> params = new HashMap<>();
         params.put("roomId", userId);
@@ -55,7 +55,7 @@ public class GameService {
     }
     public void readyForUser(String userId, String roomId) {
         RestTemplate restTemplate = new RestTemplate();
-        String url = "http://localhost:8081/hero/init";
+        String url = "http://localhost:8080/hero/init";
 
         List<String> heroNames = new ArrayList<String>();
         heroNames.add("John");
@@ -70,7 +70,7 @@ public class GameService {
 
     public void readyForMap(String userId) {
         RestTemplate restTemplate = new RestTemplate();
-        String url = "http://localhost:8081/map/init?roomId={roomId}";
+        String url = "http://localhost:8080/map/init?roomId={roomId}";
 
         Map<String, String> params = new HashMap<>();
         params.put("roomId", userId);
