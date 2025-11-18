@@ -91,10 +91,28 @@ public class UserSessionHeroes {
 		this.move(userId,coord);
 		
 	}
-	public Map<String,Coordinates> getHeroesCoordinates(String roomId){
-		 RestTemplate restTemplate = new RestTemplate();
-		 String backendUrl = System.getenv("BACKEND_URL");
-		 String url = backendUrl + "/users/users?roomId={roomId}";
+    public Map<String, Coordinates> getHeroesCoordinates(String roomId) {
+        RestTemplate restTemplate = new RestTemplate();
+        String url = "http://localhost:8080/users/users?roomId={roomId}";
 
+        Map<String, String> params = new HashMap<>();
+        params.put("roomId", roomId);
+
+        Set<String> userIds = restTemplate.getForObject(url, Set.class, params);
+        Map<String, Coordinates> coordinates = new HashMap<>();
+
+        for (String userId : userIds) {
+            HeroInMap hero = this.userHeroes.get(userId);
+            coordinates.put(userId, hero.getCoord());
+
+        }
+        return coordinates;
+
+    }
+
+    public void sendHeroesCoordinates(String roomId) {
+        Map<String, Coordinates> coordinates = getHeroesCoordinates(roomId);
+        this.gameWebSocket.sendMessageToRoom(roomId, "heroes", coordinates);
+    }
 
 }
