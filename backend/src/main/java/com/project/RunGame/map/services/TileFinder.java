@@ -205,50 +205,56 @@ public class TileFinder {
 
         try {
             ObjectMapper mapper = new ObjectMapper();
-            JsonNode root = mapper.readTree(new File("src/main/resources/TilesLowWaterProba.json"));
-            //JsonNode root = mapper.readTree(new File("src/main/resources/Tiles.json"));
-            JsonNode tilesNode = root.get("tiles");
-            ArrayList<Tile> tiles = new ArrayList<Tile>();
-            Iterator<Map.Entry<String, JsonNode>> fields = tilesNode.fields();
-            while (fields.hasNext()) {
-                Map.Entry<String, JsonNode> entry = fields.next();
+            try (InputStream inputStream = getClass().getClassLoader()
+                .getResourceAsStream("TilesLowWaterProba.json")) {
 
-                JsonNode tileData = entry.getValue().get("coord");
-                int size = tileData.size();
-                int[] upEdgeTable = new int[size];
-                int[] downEdgeTable = new int[size];
-                int[] leftEdgeTable = new int[size];
-                int[] rightEdgeTable = new int[size];
-                for (int col = 0; col < size; col++) {
-                    upEdgeTable[col] = tileData.get(0).get(col).asInt();
-                    downEdgeTable[col] = tileData.get(size - 1).get(col).asInt();
-                    leftEdgeTable[col] = tileData.get(col).get(0).asInt();
-                    rightEdgeTable[col] = tileData.get(col).get(size - 1).asInt();
+                if (inputStream == null) {
+                    throw new RuntimeException("Fichier TilesLowWaterProba.json non trouvé dans le classpath !");
                 }
-                Map<DirectionEnum, Edge> edges = new HashMap<DirectionEnum, Edge>();
-                edges.put(DirectionEnum.Up, new Edge(upEdgeTable));
-                edges.put(DirectionEnum.Down, new Edge(downEdgeTable));
-                edges.put(DirectionEnum.Left, new Edge(leftEdgeTable));
-                edges.put(DirectionEnum.Right, new Edge(rightEdgeTable));
-                int[] upLeft = new int[]{tileData.get(0).get(0).asInt()};
-                int[] upRight = new int[]{tileData.get(0).get(size - 1).asInt()};
-                int[] downLeft = new int[]{tileData.get(size - 1).get(0).asInt()};
-                int[] downRight = new int[]{tileData.get(size - 1).get(size - 1).asInt()};
-                edges.put(DirectionEnum.UpLeft, new Edge(upLeft));
-                edges.put(DirectionEnum.UpRight, new Edge(upRight));
-                edges.put(DirectionEnum.DownLeft, new Edge(downLeft));
-                edges.put(DirectionEnum.DownRight, new Edge(downRight));
+                JsonNode root = mapper.readTree(inputStream);
+                JsonNode tilesNode = root.get("tiles");
+                ArrayList<Tile> tiles = new ArrayList<Tile>();
+                Iterator<Map.Entry<String, JsonNode>> fields = tilesNode.fields();
+                while (fields.hasNext()) {
+                    Map.Entry<String, JsonNode> entry = fields.next();
 
-                int id = entry.getValue().get("id").asInt();
-                int ProbabilityIndex = entry.getValue().get("probabilityIndex").asInt();
-                JsonNode probabilityChangeNode = entry.getValue().get("probabilityChange");
-                Map<DirectionEnum, ProbabilityEntry> probabilityChange = this.getProbabilityEntries(probabilityChangeNode);
-                Tile tile = new Tile(edges, id, ProbabilityIndex, probabilityChange);
-                tiles.add(tile);
-                this.tiles = tiles;
-                for (int i = 0; i < this.tiles.size(); i++) {
-                    Tile currentTile = tiles.get(i);
-                    this.tilesMap.put(currentTile.getId(), currentTile);
+                    JsonNode tileData = entry.getValue().get("coord");
+                    int size = tileData.size();
+                    int[] upEdgeTable = new int[size];
+                    int[] downEdgeTable = new int[size];
+                    int[] leftEdgeTable = new int[size];
+                    int[] rightEdgeTable = new int[size];
+                    for (int col = 0; col < size; col++) {
+                        upEdgeTable[col] = tileData.get(0).get(col).asInt();
+                        downEdgeTable[col] = tileData.get(size - 1).get(col).asInt();
+                        leftEdgeTable[col] = tileData.get(col).get(0).asInt();
+                        rightEdgeTable[col] = tileData.get(col).get(size - 1).asInt();
+                    }
+                    Map<DirectionEnum, Edge> edges = new HashMap<DirectionEnum, Edge>();
+                    edges.put(DirectionEnum.Up, new Edge(upEdgeTable));
+                    edges.put(DirectionEnum.Down, new Edge(downEdgeTable));
+                    edges.put(DirectionEnum.Left, new Edge(leftEdgeTable));
+                    edges.put(DirectionEnum.Right, new Edge(rightEdgeTable));
+                    int[] upLeft = new int[]{tileData.get(0).get(0).asInt()};
+                    int[] upRight = new int[]{tileData.get(0).get(size - 1).asInt()};
+                    int[] downLeft = new int[]{tileData.get(size - 1).get(0).asInt()};
+                    int[] downRight = new int[]{tileData.get(size - 1).get(size - 1).asInt()};
+                    edges.put(DirectionEnum.UpLeft, new Edge(upLeft));
+                    edges.put(DirectionEnum.UpRight, new Edge(upRight));
+                    edges.put(DirectionEnum.DownLeft, new Edge(downLeft));
+                    edges.put(DirectionEnum.DownRight, new Edge(downRight));
+
+                    int id = entry.getValue().get("id").asInt();
+                    int ProbabilityIndex = entry.getValue().get("probabilityIndex").asInt();
+                    JsonNode probabilityChangeNode = entry.getValue().get("probabilityChange");
+                    Map<DirectionEnum, ProbabilityEntry> probabilityChange = this.getProbabilityEntries(probabilityChangeNode);
+                    Tile tile = new Tile(edges, id, ProbabilityIndex, probabilityChange);
+                    tiles.add(tile);
+                    this.tiles = tiles;
+                    for (int i = 0; i < this.tiles.size(); i++) {
+                        Tile currentTile = tiles.get(i);
+                        this.tilesMap.put(currentTile.getId(), currentTile);
+                    }
                 }
             }
 
