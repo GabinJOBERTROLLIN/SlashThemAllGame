@@ -6,8 +6,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
-
-@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/game")
 public class GameController {
