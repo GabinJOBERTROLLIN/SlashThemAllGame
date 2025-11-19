@@ -35,7 +35,8 @@ public class GameService {
 
     public void readyForMonsters(String userId) {
         RestTemplate restTemplate = new RestTemplate();
-        String url = "http://localhost:8080/monsters/init?roomId={roomId}";
+        String backendUrl = System.getenv("BACKEND_URL");
+        String url = backendUrl + "/monsters/init?roomId={roomId}";
 
         Map<String, String> params = new HashMap<>();
         params.put("roomId", userId);
@@ -44,7 +45,8 @@ public class GameService {
     }
     public boolean doesRoomExist(String roomId){
         RestTemplate restTemplate = new RestTemplate();
-        String url = "http://localhost:8081/users/users?roomId={roomId}";
+        String backendUrl = System.getenv("BACKEND_URL");
+        String url = backendUrl + "/users/users?roomId={roomId}";
 
         Map<String, String> params = new HashMap<>();
         params.put("roomId", roomId);
@@ -55,7 +57,8 @@ public class GameService {
     }
     public void readyForUser(String userId, String roomId) {
         RestTemplate restTemplate = new RestTemplate();
-        String url = "http://localhost:8080/hero/init";
+        String backendUrl = System.getenv("BACKEND_URL");
+        String url = backendUrl + "/hero/init";
 
         List<String> heroNames = new ArrayList<String>();
         heroNames.add("John");
@@ -70,7 +73,8 @@ public class GameService {
 
     public void readyForMap(String userId) {
         RestTemplate restTemplate = new RestTemplate();
-        String url = "http://localhost:8080/map/init?roomId={roomId}";
+        String backendUrl = System.getenv("BACKEND_URL");
+        String url = backendUrl +  "/map/init?roomId={roomId}";
 
         Map<String, String> params = new HashMap<>();
         params.put("roomId", userId);

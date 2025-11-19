@@ -4,11 +4,18 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { RoomComponent } from '../room/room.component';
 import { HttpClient } from '@angular/common/http';
+import {MatInputModule} from '@angular/material/input';
+import {MatIconModule} from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatDividerModule} from '@angular/material/divider';
+import {MatCardModule} from '@angular/material/card';
+
 import * as uuid from 'uuid';
 
 @Component({
     selector: 'app-home',
-    imports: [CommonModule, RoomComponent, FormsModule],
+    imports: [CommonModule, RoomComponent,MatCardModule,MatDividerModule, FormsModule,MatFormFieldModule, MatButtonModule,MatInputModule,MatIconModule],
     templateUrl: './home.component.html',
     styleUrl: './home.component.css'
 })

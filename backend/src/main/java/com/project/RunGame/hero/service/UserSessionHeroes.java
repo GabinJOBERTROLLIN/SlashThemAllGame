@@ -100,7 +100,8 @@ public class UserSessionHeroes {
 	}
     public Map<String, Coordinates> getHeroesCoordinates(String roomId) {
         RestTemplate restTemplate = new RestTemplate();
-        String url = "http://localhost:8080/users/users?roomId={roomId}";
+		String backendUrl = System.getenv("BACKEND_URL");
+        String url = backendUrl + "/users/users?roomId={roomId}";
 
         Map<String, String> params = new HashMap<>();
         params.put("roomId", roomId);

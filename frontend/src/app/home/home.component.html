@@ -1,6 +1,31 @@
-<button (click)="createRoom()">Create Room</button>
+<div id = "homeContainer">
+    <mat-card appearance="outlined">
+    <mat-card-header>
+      <mat-card-title>Welcome to Slash Them All!</mat-card-title>
+    </mat-card-header>
 
-  <form (ngSubmit)="handleSubmit($event)">
-    <input type="text" name="roomId" [(ngModel)]="inputId" placeholder="Enter Room ID" />
-    <button type="submit">Join Room</button>
-  </form>
+    
+
+    
+    <mat-card-content>
+      <mat-divider></mat-divider>
+
+      <form (ngSubmit)="handleSubmit($event)">
+        <mat-form-field >
+        <mat-label>Enter Room Id</mat-label>
+        <input matInput type="text" name="roomId" [(ngModel)]="inputId"/>
+        @if (inputId) {
+          <button matSuffix matIconButton aria-label="Clear" (click)="inputId=''">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+        </mat-form-field>
+        <button matButton="filled" type="submit">Join Room</button>
+      </form>
+
+    </mat-card-content>
+
+    <button matButton="filled" (click)="createRoom()">Create Room</button>
+      
+  </mat-card>
+</div>

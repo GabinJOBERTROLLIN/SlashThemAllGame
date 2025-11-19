@@ -53,7 +53,8 @@ public class RoomSession {
     }
     public boolean deleteHero(String userId){
         RestTemplate restTemplate = new RestTemplate();
-        String url = "http://localhost:8081/hero/hero?userId=" + userId;
+        String backendUrl = System.getenv("BACKEND_URL");
+        String url = backendUrl + "/hero/hero?userId=" + userId;
         restTemplate.delete(url);
         return true;
     }

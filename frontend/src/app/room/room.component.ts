@@ -4,10 +4,11 @@ import { KeyWebSocketService } from '../controller/webSockets/KeyWebSocketServic
 import { GameComponent } from '../game/game.component';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
     selector: 'app-room',
-    imports: [GameComponent, CommonModule],
+    imports: [GameComponent, CommonModule,MatButtonModule],
     templateUrl: './room.component.html',
     styleUrl: './room.component.css'
 })

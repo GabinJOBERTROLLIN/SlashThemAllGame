@@ -127,7 +127,8 @@ public class GameWebSocket extends TextWebSocketHandler {
     }
     private String getRoomFromUserId(String userId){
         RestTemplate restTemplate = new RestTemplate();
-        String url = "http://localhost:8081/room?userId=" + userId;
+        String backendUrl = System.getenv("BACKEND_URL");
+        String url = backendUrl +"/room?userId=" + userId;
         return restTemplate.getForObject(url, String.class);
     }
     @Override
@@ -157,7 +158,8 @@ public class GameWebSocket extends TextWebSocketHandler {
     }
     private boolean tellRoomUserQuitted(String userId, String roomId) {
         RestTemplate restTemplate = new RestTemplate();
-        String url = "http://localhost:8081/users/user?userId=" + userId;
+        String backendUrl = System.getenv("BACKEND_URL");
+        String url = backendUrl + "users/user?userId=" + userId;
         restTemplate.delete(url);
         return true;
     }

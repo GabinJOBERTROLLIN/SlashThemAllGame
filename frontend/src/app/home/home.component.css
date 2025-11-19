@@ -1,0 +1,13 @@
+
+#homeContainer {
+    display:flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;     
+    height: 100vh;     
+    width: 100%;
+    background-image: url('/assets/backgroundHome.jpg');
+    background-size: cover; 
+    background-position: center; 
+    background-repeat: no-repeat; 
+}
