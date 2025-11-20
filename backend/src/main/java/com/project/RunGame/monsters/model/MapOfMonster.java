@@ -2,6 +2,8 @@ package com.project.RunGame.monsters.model;
 
 import com.project.RunGame.helper.BoundingBox;
 import com.project.RunGame.helper.Coordinates;
+import com.project.RunGame.helper.SpringContext;
+import com.project.RunGame.hero.controller.HeroController;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -12,8 +14,9 @@ public class MapOfMonster {
     private final AtomicInteger idGenerator = new AtomicInteger(0);
     Map<String, MonsterInMap> monsterMap = new HashMap<String, MonsterInMap>();
     private int MAX_SPREAD_DISTANCE = 5;
-
+    private HeroController heroController;
     public MapOfMonster() {
+        this.heroController = SpringContext.getBean(HeroController.class);
     }
 
     private String createMonster(String monsterName, Coordinates coord) {
@@ -49,6 +52,7 @@ public class MapOfMonster {
             if (hitmapBoundingBox.intersects(monsterBoundingBox)) {
                 monstersToRemove.add(monster.getKey());
                 killedMonsters.put(monster.getKey(), monster.getValue());
+
             }
         }
         this.removeMonster(monstersToRemove);
@@ -177,6 +181,12 @@ public class MapOfMonster {
                 (point.getY() >= minY && point.getY() <= maxY);
     }
 
+    private void damageHeroIfClose(Coordinates heroCoordinates,String userId, MonsterInMap monster){
+        if (monster.getCoord().distanceTo(heroCoordinates) < monster.getMonster().getSize()){
+            this.heroController.damageHero(userId);
+        }
+    }
+
     public Coordinates moveMonster(Map<String, Coordinates> heroCoordinates, MonsterInMap monster) {
         Coordinates coordMonster = monster.getCoord();
 
@@ -187,15 +197,16 @@ public class MapOfMonster {
         String firstHeroId = heroCoordinates.keySet().iterator().next();
         Coordinates chosenHeroCoordinates = heroCoordinates.get(firstHeroId);
         double distanceFirst = chosenHeroCoordinates.distanceTo(coordMonster);
-
         for (Map.Entry<String, Coordinates> entry : heroCoordinates.entrySet()) {
             double distance = entry.getValue().distanceTo(coordMonster);
             if (distance < distanceFirst) {
                 distanceFirst = distance;
                 chosenHeroCoordinates = entry.getValue();
+                firstHeroId = entry.getKey();
             }
         }
         if (this.canMoveMonster(monster, chosenHeroCoordinates)) {
+            this.damageHeroIfClose(chosenHeroCoordinates,firstHeroId,monster);
             return monster.move(chosenHeroCoordinates);
         } else {
             Coordinates direction = this.getBestSidewayDirectionCoordinates(monster, chosenHeroCoordinates);
@@ -242,6 +253,7 @@ public class MapOfMonster {
                 //blockedMonsters.put(entry.getKey(),monster);
 
             }
+
         }
 
         return newCoord;

@@ -11,6 +11,7 @@ import com.project.RunGame.game.controller.websockets.eventPublishers.MapEventPu
 import com.project.RunGame.game.controller.websockets.eventPublishers.MovementEventPublisher;
 import com.project.RunGame.helper.DirectionEnum;
 import com.project.RunGame.map.model.Coordinates;
+import com.project.RunGame.user.controller.UserController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -30,25 +31,30 @@ public class GameWebSocket extends TextWebSocketHandler {
     InputEventPublisher inputEventPublisher;
     MapEventPublisher mapEventPublisher;
     MovementEventPublisher movementEventPublisher;
+    UserController userController;
+    RestTemplate restTemplate = new RestTemplate();
+    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectWriter ow = this.mapper.writer();
 
     @Autowired
-    public GameWebSocket(InputEventPublisher inputEventPublisher, MapEventPublisher mapEventPublisher, MovementEventPublisher movementEventPublisher) {
+    public GameWebSocket(InputEventPublisher inputEventPublisher, MapEventPublisher mapEventPublisher, MovementEventPublisher movementEventPublisher,UserController userController) {
         this.inputEventPublisher = inputEventPublisher;
         this.mapEventPublisher = mapEventPublisher;
         this.movementEventPublisher = movementEventPublisher;
+        this.userController = userController;
     }
 
 
     private void publishMapEvent(JsonNode dataJson, String roomId) {
-        ObjectMapper objectMapper = new ObjectMapper();
+
         JsonNode tileJson = dataJson.get("tiles");
 
 
-        CollectionType stringSetType = objectMapper.getTypeFactory()
+        CollectionType stringSetType = this.mapper.getTypeFactory()
                 .constructCollectionType(Set.class, String.class);
         Set<String> coordStrings;
         try {
-            coordStrings = objectMapper.readValue(tileJson.traverse(), stringSetType);
+            coordStrings = this.mapper.readValue(tileJson.traverse(), stringSetType);
             Set<Coordinates> coordinates = coordStrings.stream()
                     .map(str -> {
                         String[] parts = str.split(";");
@@ -76,10 +82,10 @@ public class GameWebSocket extends TextWebSocketHandler {
     @Override
     public void handleTextMessage(WebSocketSession session, TextMessage message) {
 
-        ObjectMapper objectMapper = new ObjectMapper();
+
 
         try {
-            JsonNode jsonMessage = objectMapper.readTree(message.getPayload());
+            JsonNode jsonMessage = this.mapper.readTree(message.getPayload());
             String type = jsonMessage.get("type").asText();
             JsonNode dataJson = jsonMessage.get("data");
             String roomId = jsonMessage.get("roomId").asText();
@@ -126,10 +132,9 @@ public class GameWebSocket extends TextWebSocketHandler {
         return null;
     }
     private String getRoomFromUserId(String userId){
-        RestTemplate restTemplate = new RestTemplate();
         String backendUrl = System.getenv("BACKEND_URL");
         String url = backendUrl +"/room?userId=" + userId;
-        return restTemplate.getForObject(url, String.class);
+        return this.restTemplate.getForObject(url, String.class);
     }
     @Override
     public void afterConnectionClosed(WebSocketSession session, org.springframework.web.socket.CloseStatus status) {
@@ -142,25 +147,40 @@ public class GameWebSocket extends TextWebSocketHandler {
 
     //calling this function from other functions
     public void sendMessageToRoom(String roomId,String type, Object object) {
-    	RestTemplate restTemplate = new RestTemplate();
-		 String backendUrl = System.getenv("BACKEND_URL");
-		 String url = backendUrl + "/users/users?roomId={roomId}";
 
-        Map<String, String> params = new HashMap<>();
-        params.put("roomId", roomId);
+		//String backendUrl = System.getenv("BACKEND_URL");
+        //String url = backendUrl + "/users/users?roomId={roomId}";
 
-        Set<String> userIds = restTemplate.getForObject(url, Set.class, params);
+        //Map<String, String> params = new HashMap<>();
+        //params.put("roomId", roomId);
 
+        //Set<String> userIds = this.restTemplate.getForObject(url, Set.class, params);
+        Set<String> userIds =  this.userController.getUsersFromRoomId(roomId);
+
+        String json = "";
+        MessageDto messageDto = new MessageDto(type, object);
+
+        try {
+            json = this.ow.writeValueAsString(messageDto);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
         for (String userId : userIds) {
-            this.sendMessageToUser(userId, type, object);
+            WebSocketSession session = this.userSessions.get(userId);
+            try {
+                synchronized (session) {
+                    session.sendMessage(new TextMessage(json));
+                }
+            } catch(IllegalStateException e){this.logUserOut(userId);}
+            catch (Exception e) { System.out.println("error"); }
+
         }
 
     }
     private boolean tellRoomUserQuitted(String userId, String roomId) {
-        RestTemplate restTemplate = new RestTemplate();
         String backendUrl = System.getenv("BACKEND_URL");
         String url = backendUrl + "users/user?userId=" + userId;
-        restTemplate.delete(url);
+        this.restTemplate.delete(url);
         return true;
     }
 
@@ -178,9 +198,8 @@ public class GameWebSocket extends TextWebSocketHandler {
         WebSocketSession session = this.userSessions.get(userId);
         String json = "";
         MessageDto messageDto = new MessageDto(type, object);
-        ObjectWriter ow = new ObjectMapper().writer();
         try {
-            json = ow.writeValueAsString(messageDto);
+            json = this.ow.writeValueAsString(messageDto);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }

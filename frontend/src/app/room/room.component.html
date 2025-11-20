@@ -2,11 +2,16 @@
     <div>
       <p>This a game  ! Please survive !</p>
     </div>
-    <div class="divider" role="separator" aria-label="Divider"></div>
-    
-    <button matButton="filled" (click)="toggleGame()">
-  {{ showGame ? 'Stop game' : 'New Game' }}
-</button>
+    <div class="divider" role="separator" aria-label="Divider">
+    </div>
+    <mat-form-field >
+    <mat-label>Please enter your name !</mat-label>
+      <input matInput type="text" name="Enter your name" [(ngModel)]="playerName" [disabled]="showGame"/>    
+    </mat-form-field>
+
+    <button matButton="filled" [disabled]="!playerName" (click)="toggleGame()">
+      {{ showGame ? 'Stop game' : 'New Game' }}
+    </button>
 
 <div id = "gameContainer">
   <app-game *ngIf="gameStarted"></app-game>

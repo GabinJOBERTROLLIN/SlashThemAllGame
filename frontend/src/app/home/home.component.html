@@ -15,7 +15,7 @@
         <mat-label>Enter Room Id</mat-label>
         <input matInput type="text" name="roomId" [(ngModel)]="inputId"/>
         @if (inputId) {
-          <button matSuffix matIconButton aria-label="Clear" (click)="inputId=''">
+          <button matSuffix matIconButton aria-label="Clear" type="submit" (click)="inputId=''">
             <mat-icon>close</mat-icon>
           </button>
         }

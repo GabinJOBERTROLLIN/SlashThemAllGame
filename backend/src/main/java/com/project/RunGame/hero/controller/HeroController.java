@@ -39,4 +39,9 @@ public class HeroController {
     public boolean deleteHero(@RequestParam String userId){
         return this.userSessionHeroes.deleteHero(userId);
     }
+
+    @PostMapping("/damage")
+    public void damageHero(@RequestParam String userId) {
+        this.userSessionHeroes.damageHero(userId);
+    }
 }

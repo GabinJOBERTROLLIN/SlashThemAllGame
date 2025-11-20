@@ -15,7 +15,7 @@ import * as uuid from 'uuid';
 
 @Component({
     selector: 'app-home',
-    imports: [CommonModule, RoomComponent,MatCardModule,MatDividerModule, FormsModule,MatFormFieldModule, MatButtonModule,MatInputModule,MatIconModule],
+    imports: [CommonModule, RoomComponent,MatDividerModule,MatCardModule, FormsModule,MatFormFieldModule, MatButtonModule,MatInputModule,MatIconModule],
     templateUrl: './home.component.html',
     styleUrl: './home.component.css'
 })

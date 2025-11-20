@@ -41,6 +41,9 @@ public class GameClock {
         if (tick.get() % 10 == 0) {
             this.gameTasks.generateMonsters(this.roomId);
         }
+        if (tick.get()% 2  == 0){
+            this.gameTasks.broadcastScore(this.roomId);
+        }
         this.gameTasks.moveMonsters(this.roomId);
         this.gameTasks.broadcastHeroesCoordinates(this.roomId);
     }

@@ -5,6 +5,8 @@ import com.project.RunGame.game.controller.websockets.GameWebSocket;
 import com.project.RunGame.helper.Coordinates;
 import com.project.RunGame.helper.DirectionEnum;
 import com.project.RunGame.hero.model.HeroInMap;
+import com.project.RunGame.score.controller.ScoreController;
+import com.project.RunGame.user.controller.UserController;
 import com.project.RunGame.user.service.RoomSession;
 import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
@@ -21,10 +23,15 @@ public class UserSessionHeroes {
 	private final Map<String, HeroInMap> userHeroes = new ConcurrentHashMap<>();
 	private final RoomSession roomSession;
 	private final GameWebSocket gameWebSocket;
-	
-	UserSessionHeroes(RoomSession roomSession,GameWebSocket gameWebSocket ){
+    private final UserController userController;
+    private final ScoreController scoreController;
+	private RestTemplate restTemplate = new RestTemplate();
+
+	UserSessionHeroes(RoomSession roomSession,GameWebSocket gameWebSocket, UserController userController, ScoreController scoreController){
 		this.roomSession = roomSession;
 		this.gameWebSocket = gameWebSocket;
+        this.userController = userController;
+        this.scoreController = scoreController;
 	}
 	
 	public void initHeroes(String userId, String heroName) {
@@ -75,16 +82,16 @@ public class UserSessionHeroes {
     }
 
 	public boolean dealDamages(String userId,List<Coordinates> hitmap) {
-		RestTemplate restTemplate = new RestTemplate();
 		String backendUrl = System.getenv("BACKEND_URL");
-		 String url = backendUrl + "/monsters/damage";
+        String url = backendUrl + "/monsters/damage";
 		
 		String roomId = this.roomSession.getRoomFromUser(userId);
 		DamageMonsterDto damageMonsterDto = new DamageMonsterDto(roomId,1,hitmap);
 		HttpEntity<DamageMonsterDto> entity = new HttpEntity<>(damageMonsterDto);
-		int numberOfEnemieKilled = restTemplate.postForObject(url,entity,int.class);
+		int numberOfEnemieKilled = this.restTemplate.postForObject(url,entity,int.class);
         if (numberOfEnemieKilled > 0){
             this.giveUserKillCount(userId,numberOfEnemieKilled);
+            this.scoreController.updateScore(userId,numberOfEnemieKilled);
         }
 		return true;
 	}
@@ -99,14 +106,15 @@ public class UserSessionHeroes {
 		
 	}
     public Map<String, Coordinates> getHeroesCoordinates(String roomId) {
-        RestTemplate restTemplate = new RestTemplate();
-		String backendUrl = System.getenv("BACKEND_URL");
-        String url = backendUrl + "/users/users?roomId={roomId}";
 
-        Map<String, String> params = new HashMap<>();
-        params.put("roomId", roomId);
+		//String backendUrl = System.getenv("BACKEND_URL");
+        //String url = backendUrl + "/users/users?roomId={roomId}";
 
-        Set<String> userIds = restTemplate.getForObject(url, Set.class, params);
+        //Map<String, String> params = new HashMap<>();
+        //params.put("roomId", roomId);
+
+        //Set<String> userIds = this.restTemplate.getForObject(url, Set.class, params);
+        Set<String> userIds = this.userController.getUsersFromRoomId(roomId);
         Map<String, Coordinates> coordinates = new HashMap<>();
 
         for (String userId : userIds) {
@@ -131,5 +139,11 @@ public class UserSessionHeroes {
         }else{
             return false;
         }
+    }
+
+    public void damageHero(String userId) {
+        this.scoreController.updateScore(userId,-1);
+        this.gameWebSocket.sendMessageToUser(userId,"damageHero",1);
+
     }
 }

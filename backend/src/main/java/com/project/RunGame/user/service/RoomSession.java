@@ -31,6 +31,7 @@ public class RoomSession {
         this.userRoom.put(userId, roomId);
     }
 
+
     public void deleteRoom(String roomId) {
         Set<String> userToRemoveId = new HashSet<String>();
         for (Map.Entry<String, String> user : userRoom.entrySet()) {

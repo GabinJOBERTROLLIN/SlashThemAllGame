@@ -18,9 +18,22 @@ export class HeadUpDisplay {
                 this.updateScore(numberKilled);               
                 console.log("killed message",this.score);
             }
-        });
+            else if( parsedMessage['type']=="damageHero"){
+                const damage = parsedMessage['data'] as number;
+                this.updateScore(-damage);
+            }
+            else if (parsedMessage['type'] == "scoreBoard"){
+                console.log("Scoreboard data",parsedMessage['data']);
+                const scoreBoard = parsedMessage['data'] as Array<{ name: string; score: number }>
+                this.updateScoreBoard(scoreBoard);
+            }
+                
+            }); 
     }
 
+    updateScoreBoard(data: Array<{ name: string; score: number }>){
+        this?.scene.events.emit('updateScoreBoard', data);
+    }
     updateScore(points: number) {
         this.score += points;
         this?.scene.events.emit('updateScore', this.score);

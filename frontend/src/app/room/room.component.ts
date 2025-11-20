@@ -5,10 +5,12 @@ import { GameComponent } from '../game/game.component';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
+import {MatInputModule} from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
 
 @Component({
     selector: 'app-room',
-    imports: [GameComponent, CommonModule,MatButtonModule],
+    imports: [GameComponent, CommonModule, MatButtonModule, FormsModule, MatInputModule],
     templateUrl: './room.component.html',
     styleUrl: './room.component.css'
 })
@@ -16,6 +18,7 @@ export class RoomComponent {
   private roomId!: string;
   showGame = false;
   gameStarted: boolean = false;
+  playerName: string = '';
   constructor(private gameContrtoller:GameController, private wsService: KeyWebSocketService,private route: ActivatedRoute) {
     const roomIdStrOrNull = this.route.snapshot.paramMap.get('id');
     if(roomIdStrOrNull){
@@ -44,14 +47,19 @@ export class RoomComponent {
     })
   }
   startGame(){
-    this.gameContrtoller.startGame(this.roomId,"John").subscribe(response=>{
-      console.log("Game started successfully:",response);
-      localStorage.setItem("userId",response)
-      const userid = localStorage.getItem("userId");
-      if (userid){
-        this.gameStarted = true;
-        console.log("userId opened ws with",userid);
-        this.wsService.openConnection(userid);
+    this.gameContrtoller.startGame(this.roomId,"John",this.playerName).subscribe(response=>{
+      if (response){
+        
+        console.log("Game started successfully:",response);
+
+        localStorage.setItem("userId",response)
+        const userid = localStorage.getItem("userId");
+        if (userid){
+          this.gameStarted = true;
+          console.log("userId opened ws with",userid);
+          this.wsService.openConnection(userid);
+        }
       }
+      
     }); }
 }

@@ -4,6 +4,7 @@ import com.project.RunGame.dto.CreateHeroesDto;
 import com.project.RunGame.dto.GameStartRequest;
 import com.project.RunGame.game.model.GameModel;
 import com.project.RunGame.game.repository.GameRepository;
+import com.project.RunGame.score.controller.ScoreController;
 import com.project.RunGame.user.service.RoomSession;
 import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
@@ -17,12 +18,14 @@ import java.util.concurrent.ConcurrentHashMap;
 public class GameService {
     private final GameRepository repository;
     private final RoomSession room;
+    private final ScoreController scoreController;
     private final Map<String, RoomSessionGameClock> roomSessionGameClock = new ConcurrentHashMap<String, RoomSessionGameClock>();
 
     //bad idea, but too lazy to change and good enough for now
-    public GameService(GameRepository repository, RoomSession room) {
+    public GameService(GameRepository repository, RoomSession room, ScoreController scoreController) {
         this.repository = repository;
         this.room = room;
+        this.scoreController = scoreController;
 
     }
 
@@ -30,7 +33,14 @@ public class GameService {
         GameModel gameModel = new GameModel(gameStartRequest);
         UUID uuid = UUID.randomUUID();
         this.repository.save(gameModel);
-        return uuid;
+        String requestName  = gameStartRequest.getPlayerName();
+        if (this.scoreController.isNameAvailable(requestName)){
+            this.scoreController.createuser(uuid.toString(),requestName);
+            return uuid;
+        }
+        else{
+            return null;
+        }
     }
 
     public void readyForMonsters(String userId) {

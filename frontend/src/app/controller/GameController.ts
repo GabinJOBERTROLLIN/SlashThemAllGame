@@ -12,10 +12,12 @@ export class GameController{
   private API_URL = environment.apiUrl;
   constructor(private http: HttpClient) {}
 
-  startGame(userId: string, hero: string): Observable<any> {
+  startGame(userId: string, hero: string, playerName:string): Observable<any> {
     return this.http.post(`${environment.apiUrl}/game`, {
       userId,
-      hero
+      hero,
+      playerName
+
     });
   }
   stopGame(userId: string): Observable<any> {

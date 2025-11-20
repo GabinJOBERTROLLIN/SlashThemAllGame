@@ -3,6 +3,7 @@ package com.project.RunGame.monsters.service;
 import com.project.RunGame.dto.MonsterDto;
 import com.project.RunGame.game.controller.websockets.GameWebSocket;
 import com.project.RunGame.helper.Coordinates;
+import com.project.RunGame.hero.controller.HeroController;
 import com.project.RunGame.monsters.model.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -17,9 +18,12 @@ public class RoomSessionMonsterService {
 
     private final Map<String, MapOfMonster> roomMonsters = new HashMap<>();
     private GameWebSocket gameWebSocket;
+    private HeroController heroController;
+    private RestTemplate restTemplate = new RestTemplate();
 
-    public RoomSessionMonsterService(GameWebSocket gameWebSocket) {
+    public RoomSessionMonsterService(GameWebSocket gameWebSocket, HeroController heroController) {
         this.gameWebSocket = gameWebSocket;
+        this.heroController = heroController;
     }
 
     public void initRoom(String roomId) {
@@ -110,31 +114,33 @@ public class RoomSessionMonsterService {
 	}
 	
 	private Map<String,Coordinates> getHeroCoordinates(String roomId){
-		RestTemplate restTemplate = new RestTemplate();
-		 String backendUrl = System.getenv("BACKEND_URL");
-		 String url = backendUrl + "/hero/coordinates?roomId={roomId}";
 
-        Map<String, String> params = new HashMap<>();
-        params.put("roomId", roomId);
+        //String backendUrl = System.getenv("BACKEND_URL");
+		//String url = backendUrl + "/hero/coordinates?roomId={roomId}";
+
+        //Map<String, String> params = new HashMap<>();
+        //params.put("roomId", roomId);
 
         try {
 
-            Map<String, Map<String, Object>> rawResponse = restTemplate.getForObject(url, Map.class, params);
-            Map<String, Coordinates> result = new HashMap<>();
 
-            if (rawResponse != null) {
-                for (Map.Entry<String, Map<String, Object>> entry : rawResponse.entrySet()) {
-                    String heroId = entry.getKey();
-                    Map<String, Object> coordMap = entry.getValue();
+            return this.heroController.getHeroesCoordinates(roomId);
+           // Map<String, Map<String, Object>> rawResponse = this.restTemplate.getForObject(url, Map.class, params);
+            //Map<String, Coordinates> result = new HashMap<>();
 
-                    double x = ((Number) coordMap.get("x")).doubleValue();
-                    double y = ((Number) coordMap.get("y")).doubleValue();
+            //if (rawResponse != null) {
+            //    for (Map.Entry<String, Map<String, Object>> entry : rawResponse.entrySet()) {
+            //        String heroId = entry.getKey();
+            //        Map<String, Object> coordMap = entry.getValue();
 
-                    result.put(heroId, new Coordinates(x, y));
-                }
-            }
+                    //double x = ((Number) coordMap.get("x")).doubleValue();
+                    //double y = ((Number) coordMap.get("y")).doubleValue();
 
-            return result;
+                    //result.put(heroId, new Coordinates(x, y));
+                //}
+            //}
+
+            //return result;
 
 
         } catch (Exception e) {
