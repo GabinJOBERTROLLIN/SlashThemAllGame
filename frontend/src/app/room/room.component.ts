@@ -5,10 +5,12 @@ import { GameComponent } from '../game/game.component';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatDividerModule } from '@angular/material/divider';
 
 @Component({
     selector: 'app-room',
-    imports: [GameComponent, CommonModule,MatButtonModule],
+    imports: [GameComponent, CommonModule,MatButtonModule, MatToolbarModule, MatDividerModule],
     templateUrl: './room.component.html',
     styleUrl: './room.component.css'
 })

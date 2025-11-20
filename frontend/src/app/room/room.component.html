@@ -1,18 +1,28 @@
-<div class="content">
-    <div>
-      <p>This a game  ! Please survive !</p>
-    </div>
-    <div class="divider" role="separator" aria-label="Divider"></div>
-    
-    <button matButton="filled" (click)="toggleGame()">
-  {{ showGame ? 'Stop game' : 'New Game' }}
-</button>
+<div class="game-page">
+  <!-- Header -->
+  <mat-toolbar color="primary" class="toolbar">
+    <span>RunGame 🎮</span>
+  </mat-toolbar>
 
-<div id = "gameContainer">
-  <app-game *ngIf="gameStarted"></app-game>
+  <!-- Intro -->
+  <div class="intro">
+    <h2>Welcome to the Game!</h2>
+    <p>Survive as long as you can...</p>
+  </div>
+
+  <!-- Divider -->
+  <mat-divider></mat-divider>
+
+  <!-- Controls -->
+  <div class="controls">
+    <button mat-raised-button color="accent" (click)="toggleGame()">
+      {{ showGame ? 'Stop Game' : 'New Game' }}
+    </button>
+  </div>
+
+  <!-- Game Container -->
+  <div class="game-container" *ngIf="gameStarted">
+    <app-game></app-game>
+  </div>
 </div>
 
-
-
-
-  </div>
