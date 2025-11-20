@@ -1,4 +1,4 @@
 export const environment = {
-    apiUrl: 'https://www.gabin.eu/api',
-    webSocketUrl: 'wss://www.gabin.eu/api/gameWs'
+    apiUrl: 'https://www.gabinjr.eu/api',
+    webSocketUrl: 'wss://www.gabinjr.eu/api/gameWs'
 };
